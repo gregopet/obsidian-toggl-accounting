@@ -1,21 +1,73 @@
-import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import {
+	App,
+	ItemView,
+	Plugin,
+	PluginSettingTab,
+	Setting,
+	WorkspaceLeaf
+} from 'obsidian';
+import {createApp} from "vue";
+import Test from "./components/Test.vue";
 
-// Remember to rename these classes and interfaces!
-
-interface MyPluginSettings {
-	mySetting: string;
+interface TogglSettings {
+	apiKey: string;
 }
 
-const DEFAULT_SETTINGS: MyPluginSettings = {
-	mySetting: 'default'
+const DEFAULT_SETTINGS: TogglSettings = {
+	apiKey: ''
 }
 
-export default class MyPlugin extends Plugin {
-	settings: MyPluginSettings;
+const ACCOUNTING_VIEW_TYPE = "toggl-accounting";
+
+class AccountingView extends ItemView {
+	private readonly plugin: AccountingPlugin;
+
+	constructor(leaf: WorkspaceLeaf, plugin: AccountingPlugin) {
+		super(leaf);
+		this.plugin = plugin;
+	}
+
+	protected onOpen(): Promise<void> {
+		const promise = super.onOpen();
+
+		const app = createApp(Test)
+		app.mount(this.contentEl)
+
+		return promise;
+	}
+
+	getDisplayText(): string {
+		return "Toggl Accounting";
+	}
+
+	getViewType(): string {
+		return ACCOUNTING_VIEW_TYPE;
+	}
+
+	getIcon(): string {
+		return 'sheet';
+	}
+}
+
+export default class AccountingPlugin extends Plugin {
+	settings: TogglSettings;
 
 	async onload() {
 		await this.loadSettings();
 
+		// This adds a settings tab so the user can configure various aspects of the plugin
+		this.addSettingTab(new ObsidianSettingsTab(this.app, this));
+
+		this.registerView(ACCOUNTING_VIEW_TYPE, (leaf) => new AccountingView(leaf, this))
+
+		// Add the view to the right sidebar
+		if (this.app.workspace.layoutReady) {
+			this.initLeaf();
+		} else {
+			this.app.workspace.onLayoutReady(this.initLeaf.bind(this));
+		}
+
+		/*
 		// This creates an icon in the left ribbon.
 		const ribbonIconEl = this.addRibbonIcon('dice', 'Sample Plugin', (evt: MouseEvent) => {
 			// Called when the user clicks the icon.
@@ -65,8 +117,7 @@ export default class MyPlugin extends Plugin {
 			}
 		});
 
-		// This adds a settings tab so the user can configure various aspects of the plugin
-		this.addSettingTab(new SampleSettingTab(this.app, this));
+
 
 		// If the plugin hooks up any global DOM events (on parts of the app that doesn't belong to this plugin)
 		// Using this function will automatically remove the event listener when this plugin is disabled.
@@ -76,10 +127,20 @@ export default class MyPlugin extends Plugin {
 
 		// When registering intervals, this function will automatically clear the interval when the plugin is disabled.
 		this.registerInterval(window.setInterval(() => console.log('setInterval'), 5 * 60 * 1000));
+		*/
 	}
 
 	onunload() {
 
+	}
+
+	initLeaf(): void {
+		if (this.app.workspace.getLeavesOfType(ACCOUNTING_VIEW_TYPE).length) {
+			return;
+		}
+		this.app.workspace.getRightLeaf(false).setViewState({
+			type: ACCOUNTING_VIEW_TYPE
+		});
 	}
 
 	async loadSettings() {
@@ -91,26 +152,10 @@ export default class MyPlugin extends Plugin {
 	}
 }
 
-class SampleModal extends Modal {
-	constructor(app: App) {
-		super(app);
-	}
+class ObsidianSettingsTab extends PluginSettingTab {
+	plugin: AccountingPlugin;
 
-	onOpen() {
-		const {contentEl} = this;
-		contentEl.setText('Woah!');
-	}
-
-	onClose() {
-		const {contentEl} = this;
-		contentEl.empty();
-	}
-}
-
-class SampleSettingTab extends PluginSettingTab {
-	plugin: MyPlugin;
-
-	constructor(app: App, plugin: MyPlugin) {
+	constructor(app: App, plugin: AccountingPlugin) {
 		super(app, plugin);
 		this.plugin = plugin;
 	}
@@ -120,17 +165,16 @@ class SampleSettingTab extends PluginSettingTab {
 
 		containerEl.empty();
 
-		containerEl.createEl('h2', {text: 'Settings for my awesome plugin.'});
+		containerEl.createEl('h2', {text: 'Settings Obsidian Accounting Plugin'});
 
 		new Setting(containerEl)
-			.setName('Setting #1')
-			.setDesc('It\'s a secret')
+			.setName('Obsidian API key')
+			.setDesc('Find it at https://track.toggl.com/profile')
 			.addText(text => text
 				.setPlaceholder('Enter your secret')
-				.setValue(this.plugin.settings.mySetting)
+				.setValue(this.plugin.settings.apiKey)
 				.onChange(async (value) => {
-					console.log('Secret: ' + value);
-					this.plugin.settings.mySetting = value;
+					this.plugin.settings.apiKey = value;
 					await this.plugin.saveSettings();
 				}));
 	}
