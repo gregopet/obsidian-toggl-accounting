@@ -1,64 +1,21 @@
-import {
-	App,
-	ItemView,
-	Plugin,
-	PluginSettingTab,
-	Setting,
-	WorkspaceLeaf
-} from 'obsidian';
-import {createApp} from "vue";
-import Test from "./components/Test.vue";
+import {Plugin} from 'obsidian';
+import ObsidianSettingsTab from "./SettingsTab";
+import AccountingView, {ACCOUNTING_VIEW_TYPE} from "./AccountingView";
+import {DEFAULT_SETTINGS, Settings} from "./Settings";
+import {useTogglStore} from "./stores/Toggl";
 
-interface TogglSettings {
-	apiKey: string;
-}
-
-const DEFAULT_SETTINGS: TogglSettings = {
-	apiKey: ''
-}
-
-const ACCOUNTING_VIEW_TYPE = "toggl-accounting";
-
-class AccountingView extends ItemView {
-	private readonly plugin: AccountingPlugin;
-
-	constructor(leaf: WorkspaceLeaf, plugin: AccountingPlugin) {
-		super(leaf);
-		this.plugin = plugin;
-	}
-
-	protected onOpen(): Promise<void> {
-		const promise = super.onOpen();
-
-		const app = createApp(Test)
-		app.mount(this.contentEl)
-
-		return promise;
-	}
-
-	getDisplayText(): string {
-		return "Toggl Accounting";
-	}
-
-	getViewType(): string {
-		return ACCOUNTING_VIEW_TYPE;
-	}
-
-	getIcon(): string {
-		return 'sheet';
-	}
-}
 
 export default class AccountingPlugin extends Plugin {
-	settings: TogglSettings;
+	settings: Settings;
 
 	async onload() {
 		await this.loadSettings();
 
 		// This adds a settings tab so the user can configure various aspects of the plugin
-		this.addSettingTab(new ObsidianSettingsTab(this.app, this));
+		const settings = new ObsidianSettingsTab(this.app, this);
+		this.addSettingTab(settings);
 
-		this.registerView(ACCOUNTING_VIEW_TYPE, (leaf) => new AccountingView(leaf, this))
+		this.registerView(ACCOUNTING_VIEW_TYPE, (leaf) => new AccountingView(leaf, this, settings))
 
 		// Add the view to the right sidebar
 		if (this.app.workspace.layoutReady) {
@@ -149,33 +106,8 @@ export default class AccountingPlugin extends Plugin {
 
 	async saveSettings() {
 		await this.saveData(this.settings);
+		useTogglStore().login(this.settings.apiKey);
 	}
 }
 
-class ObsidianSettingsTab extends PluginSettingTab {
-	plugin: AccountingPlugin;
 
-	constructor(app: App, plugin: AccountingPlugin) {
-		super(app, plugin);
-		this.plugin = plugin;
-	}
-
-	display(): void {
-		const {containerEl} = this;
-
-		containerEl.empty();
-
-		containerEl.createEl('h2', {text: 'Settings Obsidian Accounting Plugin'});
-
-		new Setting(containerEl)
-			.setName('Obsidian API key')
-			.setDesc('Find it at https://track.toggl.com/profile')
-			.addText(text => text
-				.setPlaceholder('Enter your secret')
-				.setValue(this.plugin.settings.apiKey)
-				.onChange(async (value) => {
-					this.plugin.settings.apiKey = value;
-					await this.plugin.saveSettings();
-				}));
-	}
-}

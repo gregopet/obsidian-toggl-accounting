@@ -21,7 +21,7 @@ export default defineConfig( ({mode}) => {
     build: {
 		sourcemap: mode === 'development' ? 'inline' : false,
 		lib: {
-			entry: resolve(__dirname, "main.ts"),
+			entry: resolve(__dirname, "src/main.ts"),
 			name: "ObsidianTogglAccounting",
 			fileName: "main",
 			formats: ['cjs'],

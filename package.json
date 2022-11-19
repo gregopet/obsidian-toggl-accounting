@@ -5,7 +5,7 @@
 	"main": "main.js",
 	"scripts": {
 		"build": "vue-tsc --noEmit && vite build",
-		"watch": "vue-tsc --noEmit && vite build --watch"
+		"watch": "vue-tsc --noEmit && vite build --watch --mode development"
 	},
 	"keywords": [],
 	"author": "",
@@ -23,8 +23,14 @@
 		"@lezer/common": "^1.0.1",
 		"@lezer/highlight": "^1.1.2",
 		"@lezer/lr": "^1.2.5",
+		"@types/luxon": "^3.1.0",
+		"@types/voca": "^1.4.2",
 		"electron": "^21.3.0",
-		"vue": "^3.2.33"
+		"luxon": "^3.1.0",
+		"pinia": "^2.0.24",
+		"voca": "^1.4.0",
+		"vue": "^3.2.33",
+		"vue-select": "4.0.0-beta.6"
 	},
 	"devDependencies": {
 		"@types/node": "^16.11.6",
@@ -33,6 +39,7 @@
 		"@vitejs/plugin-vue": "^3.0.3",
 		"autoprefixer": "^10.4.8",
 		"builtin-modules": "3.3.0",
+		"obsidian": "^0.16.3",
 		"postcss": "^8.4.16",
 		"tailwindcss": "^3.1.8",
 		"tslib": "2.4.0",
@@ -40,7 +47,6 @@
 		"vite": "^3.0.9",
 		"vite-plugin-html": "^3.2.0",
 		"vitest": "^0.23.2",
-		"vue-tsc": "^1.0.9",
-		"obsidian": "^0.16.3"
+		"vue-tsc": "^1.0.9"
 	}
 }
