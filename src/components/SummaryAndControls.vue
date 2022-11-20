@@ -69,7 +69,7 @@ async function addTag(tag: TagAPI) {
 		</div>
 		<div v-if="tagsNotPresentOnAllEntries.length > 0">
 			Add tag:
-			<button @click="addTag(tag)" v-for="tag in tagsNotPresentOnAllEntries">
+			<button @click="addTag(tag.tag)" v-for="tag in tagsNotPresentOnAllEntries">
 				<tag :tag-id="tag.tag.id"></tag>
 				&nbsp;({{ props.entries.length - tag.entriesWithTag }}/{{ props.entries.length }})
 			</button>
