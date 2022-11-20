@@ -52,7 +52,7 @@
 					<template v-for="(entry, idx) in timeEntries">
 						<tr v-if="idx === 0 || !onSameDay(entry, timeEntries[idx-1])">
 							<td colspan="3" class="date-row">
-								{{ dateToDay(entry.at) }}
+								{{ dateToDay(entry.start) }}
 							</td>
 						</tr>
 						<tr>
@@ -109,12 +109,12 @@ async function getTimeEntries() {
 	const tagIds = limitToTags.value.map( (t) => t.id);
 	timeEntries.value = createSelectableTimeEntries(
 		await timeEntriesStore.getTimeEntries(limitToProject.value?.id, tagIds) as DetailedReport[]
-	);
+	).sort( (a, b) => a.start.localeCompare(b.at)); // Data is probably pre-sorted already, but just in case!
 }
 
 /** Do the two time entries take place on the same day? */
 function onSameDay(a: SelectableTimeEntry, b: SelectableTimeEntry): boolean {
-	return DateTime.fromISO(a.at).toISODate() == DateTime.fromISO(b.at).toISODate()
+	return DateTime.fromISO(a.start).toISODate() == DateTime.fromISO(b.start).toISODate()
 }
 
 </script>
