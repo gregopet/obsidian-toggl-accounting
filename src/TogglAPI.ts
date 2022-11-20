@@ -92,11 +92,11 @@ export interface DetailedReport {
 	billable_amount_in_cents: null;
 	hourly_rate_in_cents:     null;
 	currency:                 string;
-	time_entries:             TimeEntry[];
+	time_entries:             TimeEntryTemporal[];
 	row_number:               number;
 }
 
-export interface TimeEntry {
+export interface TimeEntryTemporal {
 	id:      number;
 	seconds: number;
 	start:   string;
@@ -105,7 +105,7 @@ export interface TimeEntry {
 }
 
 /** Splatted DetailedReport & TimeEntry */
-export interface DetailedReportWithTimeEntry extends Omit<DetailedReport, "time_entries">, TimeEntry { }
+export interface TimeEntry extends Omit<DetailedReport, "time_entries">, TimeEntryTemporal { }
 
 export interface UpdateTimeEntry {
 	billable?: boolean;

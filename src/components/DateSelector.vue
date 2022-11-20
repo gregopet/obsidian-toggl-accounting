@@ -1,11 +1,11 @@
 <template>
 	<div>
-		From {{ taskStore.from }} to {{ taskStore.to }}
+		From {{ timeEntriesStore.from }} to {{ timeEntriesStore.to }}
 	</div>
 </template>
 
 <script lang="ts" setup>
-import {useTaskStore} from "../stores/Tasks";
+import {useTimeEntriesStore} from "../stores/TimeEntries";
 
-const taskStore = useTaskStore()
+const timeEntriesStore = useTimeEntriesStore()
 </script>
