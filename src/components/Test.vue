@@ -18,13 +18,6 @@
 		Hello, dear {{togglStore.me!.fullname }}. Open
 		<a href="https://track.toggl.com/timer">your current Toggl timer</a>?
 
-		<h3>Tags</h3>
-		<ul>
-			<li v-for="tag in togglStore.tags" :key="tag.id">
-				{{ tag.name }} ({{ tag.id}})
-			</li>
-		</ul>
-
 		<div>
 			<label>
 				Select date:
