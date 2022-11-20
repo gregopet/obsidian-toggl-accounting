@@ -39,23 +39,7 @@
 		<div>
 			<button @click="getTimeEntries()">Get entries</button>
 
-			<div class="tally-box">
-				<h3>Total selected time: {{secondsToString(selectedTime)}}</h3>
-				<div v-if="selectedTags.length && selectedTimeEntries.length">
-					Remove tag:
-					<button @click="removeTag(tag.tag)" v-for="tag in selectedTags">
-						<tag :tag-id="tag.tag.id"></tag>
-						&nbsp;({{ tag.entriesWithTag }}/{{ selectedTimeEntries.length }})
-					</button>
-				</div>
-				<div v-if="togglStore.tags.length && selectedTimeEntries.length">
-					Add tag:
-					<button @click="addTag(tag)" v-for="tag in togglStore.tags">
-						<tag :tag-id="tag.id"></tag>
-					</button>
-				</div>
-			</div>
-
+			<summary-and-controls :entries="selectedTimeEntries" @entriesChanged="getTimeEntries()"></summary-and-controls>
 			<table>
 				<thead>
 					<tr>
@@ -88,9 +72,7 @@
 							</td>
 						</tr>
 					</template>
-
 				</tbody>
-
 			</table>
 		</div>
 	</div>
@@ -101,54 +83,23 @@ import {computed, ref} from "vue";
 import {useTogglStore} from "../stores/Toggl";
 import DateSelector from "./DateSelector.vue";
 import {useTimeEntriesStore} from "../stores/TimeEntries";
-import {DetailedReport, TimeEntry, Project as ProjectAPI, Tag as TagAPI} from "../TogglAPI";
-import {DateTime, Duration} from "luxon";
+import {DetailedReport, Project as ProjectAPI, Tag as TagAPI} from "../TogglAPI";
+import {DateTime} from "luxon";
 import Tag from "./Tag.vue";
 import Project from "./Project.vue";
 import ProjectSelector from "./ProjectSelector.vue";
 import TagSelector from "./TagSelector.vue";
+import SelectableTimeEntry, {createSelectableTimeEntries} from "./SelectableTimeEntry";
+import SummaryAndControls from "./SummaryAndControls.vue";
+import { secondsToString as secToStr } from "./formatters";
 
+const secondsToString = secToStr;
 const togglStore = useTogglStore();
 const timeEntriesStore = useTimeEntriesStore();
 const timeEntries = ref<SelectableTimeEntry[]>([]);
 const selectedTimeEntries = computed(() => timeEntries.value.filter((t) => t.selected));
 const limitToProject = ref<ProjectAPI | null>(null);
 const limitToTags = ref<TagAPI[]>([]);
-const selectedTime = computed(() => selectedTimeEntries.value.reduce((acc, entry) => acc + entry.seconds, 0));
-const selectedTags = computed<SelectedTag[]>(() => {
-	const tagCounter: { [tagId: string]: number } = {};
-	selectedTimeEntries.value.forEach((entry) => {
-		entry.tag_ids.forEach((tagId) => {
-			const tagIdStr = tagId.toString();
-			if (!tagCounter[tagIdStr]) {
-				tagCounter[tagIdStr] = 1;
-			} else {
-				tagCounter[tagIdStr] = tagCounter[tagIdStr] + 1;
-			}
-		})
-	})
-	return Object.keys(tagCounter).map((key) => {
-		return {
-			tag: togglStore.tag(parseInt(key, 10)),
-			entriesWithTag: tagCounter[key]
-		}
-	})
-})
-
-interface SelectableTimeEntry extends TimeEntry {
-	selected: boolean | undefined;
-}
-
-interface SelectedTag {
-	tag: TagAPI;
-	entriesWithTag: number;
-}
-
-function secondsToString(seconds: number) {
-	const dur = Duration.fromMillis(seconds * 1000).normalize();
-	const format = dur.as('hours') > 1 ? "h'h' m'm'" : "m'm'";
-	return dur.toFormat(format);
-}
 
 function dateToDay(date: string): string {
 	return DateTime.fromISO(date).toLocaleString()
@@ -156,32 +107,9 @@ function dateToDay(date: string): string {
 
 async function getTimeEntries() {
 	const tagIds = limitToTags.value.map( (t) => t.id);
-	const freshEntries = await timeEntriesStore.getTimeEntries(limitToProject.value?.id, tagIds) as DetailedReport[];
-	const newTimeEntries: SelectableTimeEntry[] = [];
-	freshEntries.forEach( (entry) => {
-		entry.time_entries.forEach( (temporal) => {
-			newTimeEntries.push({
-				selected: false,
-				...temporal,
-				...entry,
-			})
-		})
-	})
-	timeEntries.value = newTimeEntries;
-}
-
-/** Removes [tag] from the currently selected time entries */
-async function removeTag(tag: TagAPI) {
-	const timeEntryIds = selectedTimeEntries.value.map( (t) => t.id);
-	await timeEntriesStore.removeTag(timeEntryIds, tag)
-	getTimeEntries()
-}
-
-/** Adds [tag] to the currently selected time entries */
-async function addTag(tag: TagAPI) {
-	const timeEntryIds = selectedTimeEntries.value.map( (t) => t.id);
-	await timeEntriesStore.addTag(timeEntryIds, tag)
-	getTimeEntries()
+	timeEntries.value = createSelectableTimeEntries(
+		await timeEntriesStore.getTimeEntries(limitToProject.value?.id, tagIds) as DetailedReport[]
+	);
 }
 
 /** Do the two time entries take place on the same day? */
@@ -192,15 +120,5 @@ function onSameDay(a: SelectableTimeEntry, b: SelectableTimeEntry): boolean {
 </script>
 
 <style scoped>
-.tally-box {
-	position: sticky;
-	top: 20px;
-
-	background-color: var(--background-secondary);
-	border: var(--input-border-width) solid var(--background-modifier-border);
-	z-index: 50;
-	margin: 1.5em 0;
-	padding: 0.75em;
-}
 
 </style>
