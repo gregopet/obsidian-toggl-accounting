@@ -51,7 +51,7 @@
 				<tbody>
 					<template v-for="(entry, idx) in timeEntries">
 						<tr v-if="idx === 0 || !onSameDay(entry, timeEntries[idx-1])">
-							<td colspan="3" style="text-align: center">
+							<td colspan="3" class="date-row">
 								{{ dateToDay(entry.at) }}
 							</td>
 						</tr>
@@ -102,7 +102,7 @@ const limitToProject = ref<ProjectAPI | null>(null);
 const limitToTags = ref<TagAPI[]>([]);
 
 function dateToDay(date: string): string {
-	return DateTime.fromISO(date).toLocaleString()
+	return DateTime.fromISO(date).toLocaleString({ weekday: 'long', month: 'long', day: '2-digit' })
 }
 
 async function getTimeEntries() {
@@ -120,5 +120,11 @@ function onSameDay(a: SelectableTimeEntry, b: SelectableTimeEntry): boolean {
 </script>
 
 <style scoped>
-
+	.date-row {
+		text-align: center;
+		font-size: 16px;
+		padding-top: 1em;
+		padding-bottom: 0.25em;
+		font-weight: bold;
+	}
 </style>
