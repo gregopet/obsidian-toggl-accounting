@@ -14,7 +14,7 @@ import "vue-select/dist/vue-select.css";
 
 const togglStore = useTogglStore()
 const props = defineProps<{
-	modelValue: Tag | null;
+	modelValue: Tag[];
 }>()
 const emit = defineEmits(["update:modelValue"])
 const tags = ref(props.modelValue)
