@@ -1,5 +1,24 @@
 <template>
-	<v-select :multiple="true" :options="togglStore.tags" label="name" v-model="tags" @option:selected="emitChange()" @option:deselected="emitChange()"></v-select>
+	<v-select
+		:multiple="true"
+		:options="togglStore.tags"
+		label="name"
+		v-model="tags"
+		@option:selected="emitChange()"
+		@option:deselected="emitChange()"
+		placeholder="All tags"
+		:clear-search-on-blur="() => true"
+	>
+		<template v-slot:no-options>
+			No tags match your criteria
+		</template>
+		<template #selected-option="{ id, name }">
+			<tag-control :tag-id="id"></tag-control>
+		</template>
+		<template #option="{ id, name}">
+			<tag-control :tag-id="id"></tag-control>
+		</template>
+	</v-select>
 </template>
 
 
@@ -10,7 +29,7 @@ import {Tag} from "../TogglAPI";
 import {ref} from "vue";
 import VSelect from "vue-select";
 import "vue-select/dist/vue-select.css";
-
+import TagControl from "./Tag.vue";
 
 const togglStore = useTogglStore()
 const props = defineProps<{
@@ -118,7 +137,7 @@ function emitChange() {
 	border-bottom-right-radius:0
 }
 .vs__open-indicator{
-	fill:var(--vs-controls-color);
+	fill:var(--text-normal);
 	transform:scale(var(--vs-controls-size));
 	transition:transform var(--vs-transition-duration) var(--vs-transition-timing-function);
 	transition-timing-function:var(--vs-transition-timing-function)
@@ -151,13 +170,13 @@ function emitChange() {
 	min-width:var(--vs-dropdown-min-width);
 	overflow-y:auto;
 	box-shadow:var(--vs-dropdown-box-shadow);
-	border:var(--vs-border-width) var(--vs-border-style) var(--vs-border-color);
+	border:var(--divider-width) var(--vs-border-style) var(--divider-color);
 	border-top-style:none;
 	border-radius:0 0 var(--vs-border-radius) var(--vs-border-radius);
 	text-align:left;
 	list-style:none;
-	background:var(--vs-dropdown-bg);
-	color:var(--vs-dropdown-color)
+	background:var(--background-modifier-form-field);
+	color:var(--text-normal);
 }
 .vs__no-options{
 	text-align:center
@@ -187,10 +206,10 @@ function emitChange() {
 .vs__selected{
 	display:flex;
 	align-items:center;
-	background-color:var(--vs-selected-bg);
+	background-color:var(--background-modifier-form-field);
 	border:var(--vs-selected-border-width) var(--vs-selected-border-style) var(--vs-selected-border-color);
 	border-radius:var(--vs-border-radius);
-	color:var(--vs-selected-color);
+	color:var(--text-normal);
 	line-height:var(--vs-line-height);
 	margin:4px 2px 0;
 	padding:0 .25em;
@@ -201,12 +220,13 @@ function emitChange() {
 	-webkit-appearance:none;
 	-moz-appearance:none;
 	appearance:none;
-	margin-left:4px;
+	margin-left:8px;
 	padding:0;
-	border:0;
+	border:0 !important;
+	box-shadow: none !important;
 	cursor:pointer;
-	background:none;
-	fill:var(--vs-controls-color);
+	background:none !important;
+	fill:var(--text-normal);
 	text-shadow:var(--vs-controls--deselect-text-shadow)
 }
 .vs--single .vs__selected{

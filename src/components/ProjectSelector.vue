@@ -1,6 +1,6 @@
 <template>
 	<select v-model="project" @change="emitChange" :style="{ color: project ? project.color : undefined }">
-		<option :selected="!project" :value="null" style="color: var(--text-normal)">All projects</option>
+		<option :selected="!project" :value="null">All projects</option>
 		<option v-for="p in togglStore.projects" :selected="project != null && project.id === p.id" :value="p" :style="{ color: p.color }">
 			{{ p.name }}
 		</option>
@@ -21,5 +21,10 @@ const project = ref(props.modelValue)
 function emitChange() {
 	emit("update:modelValue", project.value)
 }
-
 </script>
+
+<style scoped>
+option {
+	color: var(--text-normal);
+}
+</style>

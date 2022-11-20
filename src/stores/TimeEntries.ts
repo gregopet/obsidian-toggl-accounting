@@ -43,10 +43,19 @@ export const useTimeEntriesStore = defineStore('time-entries', () => {
 
 	/** Removes the given tag from the time entries */
 	async function removeTag(timeEntryIds: number[], tag: Tag): Promise<void> {
+		return addRemoveTag(timeEntryIds, tag, "remove")
+	}
+
+	/** Adds the given tag from the time entries */
+	async function addTag(timeEntryIds: number[], tag: Tag): Promise<void> {
+		return addRemoveTag(timeEntryIds, tag, "add")
+	}
+
+	async function addRemoveTag(timeEntryIds: number[], tag: Tag, operation: "add" | "remove"): Promise<void> {
 		const togglStore = useTogglStore();
 		const req: UpdateTimeEntry = {
 			tags: [tag.name],
-			tag_action: "remove",
+			tag_action: operation,
 		}
 		console.log(JSON.stringify(req))
 		togglStore.assertOk(await togglStore.togglRequest(
@@ -58,5 +67,5 @@ export const useTimeEntriesStore = defineStore('time-entries', () => {
 		))
 	}
 
-	return { from, to, tagIds, getTimeEntries, removeTag }
+	return { from, to, tagIds, getTimeEntries, removeTag, addTag }
 });

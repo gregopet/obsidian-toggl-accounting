@@ -39,6 +39,23 @@
 		<div>
 			<button @click="getTimeEntries()">Get entries</button>
 
+			<div class="tally-box">
+				<h3>Total selected time: {{secondsToString(selectedTime)}}</h3>
+				<div v-if="selectedTags.length && selectedTimeEntries.length">
+					Remove tag:
+					<button @click="removeTag(tag.tag)" v-for="tag in selectedTags">
+						<tag :tag-id="tag.tag.id"></tag>
+						&nbsp;({{ tag.entriesWithTag }}/{{ selectedTimeEntries.length }})
+					</button>
+				</div>
+				<div v-if="togglStore.tags.length && selectedTimeEntries.length">
+					Add tag:
+					<button @click="addTag(tag)" v-for="tag in togglStore.tags">
+						<tag :tag-id="tag.id"></tag>
+					</button>
+				</div>
+			</div>
+
 			<table>
 				<thead>
 					<tr>
@@ -75,15 +92,6 @@
 				</tbody>
 
 			</table>
-			<h3>Total selected time: {{secondsToString(selectedTime)}}</h3>
-			<ul>
-				<li v-for="tag in selectedTags">
-					<button @click="removeTag(tag.tag)">
-						<tag :tag-id="tag.tag.id"></tag>
-						({{ tag.entriesWithTag }}/{{ selectedTimeEntries.length }})
-					</button>
-				</li>
-			</ul>
 		</div>
 	</div>
 </template>
@@ -169,9 +177,30 @@ async function removeTag(tag: TagAPI) {
 	getTimeEntries()
 }
 
+/** Adds [tag] to the currently selected time entries */
+async function addTag(tag: TagAPI) {
+	const timeEntryIds = selectedTimeEntries.value.map( (t) => t.id);
+	await timeEntriesStore.addTag(timeEntryIds, tag)
+	getTimeEntries()
+}
+
 /** Do the two time entries take place on the same day? */
 function onSameDay(a: SelectableTimeEntry, b: SelectableTimeEntry): boolean {
 	return DateTime.fromISO(a.at).toISODate() == DateTime.fromISO(b.at).toISODate()
 }
 
 </script>
+
+<style scoped>
+.tally-box {
+	position: sticky;
+	top: 20px;
+
+	background-color: var(--background-secondary);
+	border: var(--input-border-width) solid var(--background-modifier-border);
+	z-index: 50;
+	margin: 1.5em 0;
+	padding: 0.75em;
+}
+
+</style>
