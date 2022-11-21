@@ -38,7 +38,6 @@ const props = defineProps<{
 const emit = defineEmits(["update:modelValue"])
 const tags = ref(props.modelValue)
 function emitChange() {
-	console.log(tags.value)
 	emit("update:modelValue", tags.value)
 }
 </script>

@@ -25,7 +25,6 @@ export const useTimeEntriesStore = defineStore('time-entries', () => {
 			project_ids: projectId ? [projectId] : undefined,
 			tag_ids: !tagIds || tagIds.length === 0 ? undefined : tagIds
 		}
-		console.log(tagIds, req)
 		const resp = togglStore.assertOk(await togglStore.togglRequest(
 			"/reports/api/v3/workspace/{workspace_id}/search/time_entries",
 			{
@@ -57,7 +56,6 @@ export const useTimeEntriesStore = defineStore('time-entries', () => {
 			tags: [tag.name],
 			tag_action: operation,
 		}
-		console.log(JSON.stringify(req))
 		togglStore.assertOk(await togglStore.togglRequest(
 			`/api/v8/time_entries/${timeEntryIds.join(",")}`,
 			{

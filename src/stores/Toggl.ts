@@ -50,7 +50,7 @@ export const useTogglStore = defineStore('toggl', () => {
 		const headers = params.headers || {};
 		headers.authorization = authorization;
 		const actualPath = path.replace("{workspace_id}", workspaceId.value?.toString() ?? "");
-		console.log(`Firing a ${params.method ?? "GET"} request to`, actualPath)
+		console.debug(`Firing a ${params.method ?? "GET"} request to`, actualPath)
 		try {
 			return obsidian.requestUrl({
 				url: "https://api.track.toggl.com" + actualPath,
