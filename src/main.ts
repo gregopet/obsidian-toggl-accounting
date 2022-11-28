@@ -24,6 +24,18 @@ export default class AccountingPlugin extends Plugin {
 			this.app.workspace.onLayoutReady(this.initLeaf.bind(this));
 		}
 
+		// Add command to open the sidebar
+		this.addCommand({
+			id: "toggl-accounting-open-sidebar",
+			name: "Open sidebar",
+			callback: () => {
+				const leaf = this.app.workspace.getLeavesOfType(ACCOUNTING_VIEW_TYPE)[0];
+				if (leaf) {
+					this.app.workspace.setActiveLeaf(leaf)
+				}
+			}
+		})
+
 		/*
 		// This creates an icon in the left ribbon.
 		const ribbonIconEl = this.addRibbonIcon('dice', 'Sample Plugin', (evt: MouseEvent) => {
@@ -37,14 +49,6 @@ export default class AccountingPlugin extends Plugin {
 		const statusBarItemEl = this.addStatusBarItem();
 		statusBarItemEl.setText('Status Bar Text');
 
-		// This adds a simple command that can be triggered anywhere
-		this.addCommand({
-			id: 'open-sample-modal-simple',
-			name: 'Open sample modal (simple)',
-			callback: () => {
-				new SampleModal(this.app).open();
-			}
-		});
 		// This adds an editor command that can perform some operation on the current editor instance
 		this.addCommand({
 			id: 'sample-editor-command',
