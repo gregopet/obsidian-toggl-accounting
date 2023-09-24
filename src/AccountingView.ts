@@ -6,6 +6,7 @@ import AccountingPlugin from "./main";
 import {useObsidanStore} from "./stores/Obsidian";
 import ObsidianSettingsTab from "./SettingsTab";
 import {useTogglStore} from "./stores/Toggl";
+import {useCurrentStore} from "./stores/Current";
 
 export const ACCOUNTING_VIEW_TYPE = "toggl-accounting";
 
@@ -28,6 +29,11 @@ export default class AccountingView extends ItemView {
 		useObsidanStore().registerApp(this.app, this.plugin)
 		app.mount(this.contentEl)
 		useTogglStore().login(this.plugin.settings.apiKey);
+
+		this.registerInterval(
+			window.setInterval(() => useCurrentStore().refreshCurrent(), 10000)
+		)
+		useCurrentStore().refreshCurrent()
 
 		return promise;
 	}

@@ -130,3 +130,7 @@ export interface UpdateTimeEntry {
 	user_id?: number;
 	workspace_id?: number;
 }
+
+export interface RunningTimeEntry extends UpdateTimeEntry{
+	id: number;
+}

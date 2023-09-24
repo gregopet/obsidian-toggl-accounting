@@ -2,6 +2,7 @@
 
 /*
  * A box displaying the total selected time and offers controls to add or remove tags on selected tasks.
+ * Emits a 'entriesChanged' event when it had caused a change the rest of the plugin should be aware of.
  */
 import SelectableTimeEntry from "./SelectableTimeEntry";
 import {computed} from "vue";
@@ -59,7 +60,8 @@ async function addTag(tag: TagAPI) {
 
 <template>
 	<div class="tally-box">
-		<h3>Total selected time: {{secondsToString(selectedTime)}}</h3>
+		<h3 v-if="entries?.length">Total selected time: {{secondsToString(selectedTime)}}</h3>
+		<h3 v-else>No entries selected</h3>
 		<div v-if="tagsWithNonZeroCounts.length > 0">
 			Remove tag:
 			<button @click="removeTag(tag.tag)" v-for="tag in tagsWithNonZeroCounts">

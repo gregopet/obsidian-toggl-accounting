@@ -18,11 +18,13 @@
 		Hello, dear {{togglStore.me!.fullname }}. Open
 		<a href="https://track.toggl.com/timer">your current Toggl timer</a>?
 
+		<div v-if="current.current">
+			Currently active time entry: {{current.current.description}}
+		</div>
+
 		<div>
-			<label>
-				Select date:
-				<date-selector></date-selector>
-			</label>
+			Select date:
+			<date-selector v-model:dateFrom="dateFrom" v-model:dateTo="dateTo"></date-selector>
 		</div>
 		<div>
 			<label>
@@ -92,6 +94,7 @@ import TagSelector from "./TagSelector.vue";
 import SelectableTimeEntry, {createSelectableTimeEntries} from "./SelectableTimeEntry";
 import SummaryAndControls from "./SummaryAndControls.vue";
 import { secondsToString as secToStr } from "./formatters";
+import {useCurrentStore} from "../stores/Current";
 
 const secondsToString = secToStr;
 const togglStore = useTogglStore();
@@ -100,6 +103,9 @@ const timeEntries = ref<SelectableTimeEntry[]>([]);
 const selectedTimeEntries = computed(() => timeEntries.value.filter((t) => t.selected));
 const limitToProject = ref<ProjectAPI | null>(null);
 const limitToTags = ref<TagAPI[]>([]);
+const dateFrom = ref(DateTime.now().startOf("month"))
+const dateTo = ref(DateTime.now().endOf("month"))
+const current = useCurrentStore()
 
 function dateToDay(date: string): string {
 	return DateTime.fromISO(date).toLocaleString({ weekday: 'long', month: 'long', day: '2-digit' })
@@ -108,15 +114,14 @@ function dateToDay(date: string): string {
 async function getTimeEntries() {
 	const tagIds = limitToTags.value.map( (t) => t.id);
 	timeEntries.value = createSelectableTimeEntries(
-		await timeEntriesStore.getTimeEntries(limitToProject.value?.id, tagIds) as DetailedReport[]
-	).sort( (a, b) => a.start.localeCompare(b.at)); // Data is probably pre-sorted already, but just in case!
+		await timeEntriesStore.getTimeEntries(dateFrom.value, dateTo.value, limitToProject.value?.id, tagIds) as DetailedReport[]
+	).sort( (a, b) => a.start.localeCompare(b.start)); // Data is probably pre-sorted already, but just in case!
 }
 
 /** Do the two time entries take place on the same day? */
 function onSameDay(a: SelectableTimeEntry, b: SelectableTimeEntry): boolean {
 	return DateTime.fromISO(a.start).toISODate() == DateTime.fromISO(b.start).toISODate()
 }
-
 </script>
 
 <style scoped>

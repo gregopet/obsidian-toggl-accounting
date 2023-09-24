@@ -6,21 +6,15 @@ import {DetailedReport, DetailedReportQuery, Tag, UpdateTimeEntry} from "../Togg
 
 export const useTimeEntriesStore = defineStore('time-entries', () => {
 
-	/** Day from which time entries will be shown */
-	const from = ref(DateTime.now().minus(Duration.fromISO("P2M")))
-
-	/** Day up to which time entries will be shown */
-	const to = ref(DateTime.now().plus(Duration.fromISO("P2D")))
-
 	/** Tags for which we would like to get our time entries (or empty array to get regardless of tag) */
 	const tagIds = ref<number[]>([])
 
 	/** Fetches all time entries */
-	async function getTimeEntries(projectId?: number, tagIds?: number[], fromRow?: number): Promise<DetailedReport[]> {
+	async function getTimeEntries(from: DateTime, to: DateTime, projectId?: number, tagIds?: number[], fromRow?: number): Promise<DetailedReport[]> {
 		const togglStore = useTogglStore()
 		const req: DetailedReportQuery = {
-			start_date: from.value.toISODate(),
-			end_date: to.value.toISODate(),
+			start_date: from.toISODate(),
+			end_date: to.toISODate(),
 			first_row_number: fromRow,
 			project_ids: projectId ? [projectId] : undefined,
 			tag_ids: !tagIds || tagIds.length === 0 ? undefined : tagIds
@@ -33,7 +27,7 @@ export const useTimeEntriesStore = defineStore('time-entries', () => {
 			}
 		))
 		if (resp.headers["x-next-row-number"]) {
-			const nextReq = await getTimeEntries(projectId, tagIds, parseInt(resp.headers["x-next-row-number"]))
+			const nextReq = await getTimeEntries(from, to, projectId, tagIds, parseInt(resp.headers["x-next-row-number"]))
 			return (resp.json as DetailedReport[]).concat(nextReq);
 		} else {
 			return resp.json
@@ -65,5 +59,5 @@ export const useTimeEntriesStore = defineStore('time-entries', () => {
 		))
 	}
 
-	return { from, to, tagIds, getTimeEntries, removeTag, addTag }
+	return { tagIds, getTimeEntries, removeTag, addTag }
 });
