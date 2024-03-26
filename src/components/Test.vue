@@ -25,14 +25,11 @@
 			<label>
 				Select project:
 				<project-selector v-model="limitToProject" no-selection-text="All projects" />
-				<project-selector v-model="limitToProject" no-selection-text="All projects" />
 			</label>
 		</div>
 		<div>
 			<label>
 				Select tags:
-				<tag-selector v-model="limitToTags" />
-
 				<tag-selector v-model="limitToTags" />
 			</label>
 		</div>
