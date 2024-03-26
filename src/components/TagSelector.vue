@@ -3,9 +3,7 @@
 		:multiple="true"
 		:options="togglStore.tags"
 		label="name"
-		v-model="tags"
-		@option:selected="emitChange()"
-		@option:deselected="emitChange()"
+		v-model="model"
 		placeholder="All tags"
 		:clear-search-on-blur="() => true"
 	>
@@ -26,20 +24,14 @@
 /* Allows users to pick a multiple tags */
 import {useTogglStore} from "../stores/Toggl";
 import {Tag} from "../TogglAPI";
-import {ref} from "vue";
+import {defineModel} from "vue";
 import VSelect from "vue-select";
 import "vue-select/dist/vue-select.css";
 import TagControl from "./Tag.vue";
 
 const togglStore = useTogglStore()
-const props = defineProps<{
-	modelValue: Tag[];
-}>()
-const emit = defineEmits(["update:modelValue"])
-const tags = ref(props.modelValue)
-function emitChange() {
-	emit("update:modelValue", tags.value)
-}
+const model = defineModel<Tag[]>();
+
 </script>
 
 <style>

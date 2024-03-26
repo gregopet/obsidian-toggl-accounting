@@ -1,7 +1,7 @@
 <template>
-	<select v-model="project" @change="emitChange" :style="{ color: project ? project.color : undefined }">
-		<option :selected="!project" :value="null" v-text="noSelectionText"></option>
-		<option v-for="p in togglStore.projects" :selected="project != null && project.id === p.id" :value="p" :style="{ color: p.color }">
+	<select v-model="model" :style="{ color: model ? model.color : undefined }">
+		<option :selected="!model" :value="null" v-text="noSelectionText"></option>
+		<option v-for="p in togglStore.projects" :selected="model != null && model.id === p.id" :value="p" :style="{ color: p.color }">
 			{{ p.name }}
 		</option>
 	</select>
@@ -10,18 +10,14 @@
 /* Allows users to pick a single project */
 import {useTogglStore} from "../stores/Toggl";
 import {Project} from "../TogglAPI";
-import {ref} from "vue";
+import {ref, defineModel } from "vue";
 
 const togglStore = useTogglStore()
+const model = defineModel<Project>();
+
 const props = defineProps<{
-	modelValue: Project | null;
 	noSelectionText: string | null;
 }>()
-const emit = defineEmits(["update:modelValue"])
-const project = ref(props.modelValue)
-function emitChange() {
-	emit("update:modelValue", project.value)
-}
 </script>
 
 <style scoped>

@@ -62,6 +62,7 @@ function getProject(projectId: number | null) {
 function singleTagClick(entry: any) {
 	entryName.value = entry.description;
 	project.value = togglStore.projects.filter(p => p.id === entry.project_id).first() ?? null;
+	tag.value = entry.tag_ids!.map((tid: number) => togglStore.tag(tid));
 }
 
 /** Invoked when user double clicks on a tag - allows for quick task creation */
