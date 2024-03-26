@@ -17,7 +17,7 @@ export default class AccountingPlugin extends Plugin {
 
 		this.registerView(ACCOUNTING_VIEW_TYPE, (leaf) => new AccountingView(leaf, this, settings))
 
-		// Add the view to the right sidebar
+		// Add the display to the right sidebar
 		if (this.app.workspace.layoutReady) {
 			this.initLeaf();
 		} else {
@@ -53,7 +53,7 @@ export default class AccountingPlugin extends Plugin {
 		this.addCommand({
 			id: 'sample-editor-command',
 			name: 'Sample editor command',
-			editorCallback: (editor: Editor, view: MarkdownView) => {
+			editorCallback: (editor: Editor, display: MarkdownView) => {
 				console.log(editor.getSelection());
 				editor.replaceSelection('Sample Editor Command');
 			}

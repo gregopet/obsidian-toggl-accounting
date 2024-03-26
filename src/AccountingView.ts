@@ -10,7 +10,7 @@ import {useCurrentStore} from "./stores/Current";
 
 export const ACCOUNTING_VIEW_TYPE = "toggl-accounting";
 
-/** Creates a side view where we can do our accounting */
+/** Creates a side display where we can do our accounting */
 export default class AccountingView extends ItemView {
 	private readonly plugin: AccountingPlugin;
 	private readonly settings: ObsidianSettingsTab;
@@ -28,12 +28,12 @@ export default class AccountingView extends ItemView {
 		app.use(createPinia())
 		useObsidanStore().registerApp(this.app, this.plugin)
 		app.mount(this.contentEl)
-		useTogglStore().login(this.plugin.settings.apiKey);
-
-		this.registerInterval(
-			window.setInterval(() => useCurrentStore().refreshCurrent(), 10000)
-		)
-		useCurrentStore().refreshCurrent()
+		useTogglStore().login(this.plugin.settings.apiKey).then(() => {
+			useCurrentStore().refreshCurrent()
+			this.registerInterval(
+				window.setInterval(() => useCurrentStore().refreshCurrent(), 10000)
+			)
+		})
 
 		return promise;
 	}

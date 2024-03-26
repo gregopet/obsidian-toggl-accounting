@@ -1,3 +1,10 @@
+# Obsidian toggl accounting
+
+To develop this plugin live, provide the location of your Obsidian vault using the `OBSIDIAN_VAULT` environemnt variable
+and use `npm run watch` to monitor for changes. Use the [hot reload](https://github.com/pjeby/hot-reload) plugin to
+avoid reloading Obsidian on every change (but you have to put an empty `.hotreload` file into the plugin's folder to
+activate hot reloading).
+
 # Obsidian Sample Plugin
 
 This is a sample plugin for Obsidian (https://obsidian.md).

@@ -5,7 +5,7 @@
  * Warning: this preset will change on date boundaries, this could cause a task refresh if bound directly!
  */
 import {DateTime, DateTimeUnit} from "luxon";
-import {computed, getCurrentInstance} from "vue";
+import {computed } from "vue";
 import {ref} from "vue";
 import { useIntervalFn }  from "@vueuse/core";
 import { ftruncate } from "fs";

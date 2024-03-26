@@ -6,11 +6,11 @@
  */
 import SelectableTimeEntry from "./SelectableTimeEntry";
 import {computed} from "vue";
-import {Tag as TagAPI} from "../TogglAPI";
-import {useTogglStore} from "../stores/Toggl";
-import { secondsToString as secToStr } from "./formatters";
-import {useTimeEntriesStore} from "../stores/TimeEntries";
-import Tag from "./Tag.vue";
+import {Tag as TagAPI} from "../../TogglAPI";
+import {useTogglStore} from "../../stores/Toggl";
+import { secondsToString as secToStr } from "../../display/duration";
+import {useTimeEntriesStore} from "../../stores/TimeEntries";
+import Tag from "../Tag.vue";
 
 interface TagWithCounts {
 	tag: TagAPI;

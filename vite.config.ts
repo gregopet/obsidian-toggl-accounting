@@ -3,15 +3,20 @@ import { fileURLToPath, URL } from 'url'
 import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import tailwindcss from 'tailwindcss'
-import { resolve } from "path"
+import { resolve, join } from "path"
 
 // https://vitejs.dev/config/
 export default defineConfig( ({mode}) => {
+  let outDir = ".";
+  if (process.env.OBSIDIAN_VAULT) {
+	  outDir = join(process.env.OBSIDIAN_VAULT, ".obsidian/plugins/obsidian-toggl-accounting");
+  }
   return {
     plugins: [
       vue({ }),
       tailwindcss() as any,
     ],
+    assetsInclude: ["./manifest.json"],
     /*resolve: {
       alias: {
         '@': fileURLToPath(new URL('./src', import.meta.url)),
@@ -33,7 +38,7 @@ export default defineConfig( ({mode}) => {
 				assetFileNames: 'styles.css',
 			},
 		},
-		outDir: '.',
+		outDir,
 		emptyOutDir: false,
     },
   }

@@ -1,6 +1,6 @@
 <template>
 	<select v-model="project" @change="emitChange" :style="{ color: project ? project.color : undefined }">
-		<option :selected="!project" :value="null">All projects</option>
+		<option :selected="!project" :value="null" v-text="noSelectionText"></option>
 		<option v-for="p in togglStore.projects" :selected="project != null && project.id === p.id" :value="p" :style="{ color: p.color }">
 			{{ p.name }}
 		</option>
@@ -15,6 +15,7 @@ import {ref} from "vue";
 const togglStore = useTogglStore()
 const props = defineProps<{
 	modelValue: Project | null;
+	noSelectionText: string | null;
 }>()
 const emit = defineEmits(["update:modelValue"])
 const project = ref(props.modelValue)

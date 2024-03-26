@@ -1,4 +1,4 @@
-import {DetailedReport, TimeEntry} from "../TogglAPI";
+import {DetailedReport, TimeEntry} from "../../TogglAPI";
 
 /** A time entry that can be selected or unselected */
 interface SelectableTimeEntry extends TimeEntry {

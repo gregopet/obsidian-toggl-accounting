@@ -15,12 +15,7 @@
 		There was an error logging in! Try checking your internet connection.
 	</div>
 	<div v-else-if="togglStore.loginState === 'OK'">
-		Hello, dear {{togglStore.me!.fullname }}. Open
-		<a href="https://track.toggl.com/timer">your current Toggl timer</a>?
-
-		<div v-if="current.current">
-			Currently active time entry: {{current.current.description}}
-		</div>
+		<status />
 
 		<div>
 			Select date:
@@ -29,7 +24,7 @@
 		<div>
 			<label>
 				Select project:
-				<project-selector v-model="limitToProject" />
+				<project-selector v-model="limitToProject" no-selection-text="All projects" />
 			</label>
 		</div>
 		<div>
@@ -40,42 +35,8 @@
 		</div>
 		<div>
 			<button @click="getTimeEntries()">Get entries</button>
-
 			<summary-and-controls :entries="selectedTimeEntries" @entriesChanged="getTimeEntries()"></summary-and-controls>
-			<table>
-				<thead>
-					<tr>
-						<th></th>
-						<th style="text-align: right">Time</th>
-						<th style="text-align: left; padding-left: 1em">Entry</th>
-					</tr>
-				</thead>
-				<tbody>
-					<template v-for="(entry, idx) in timeEntries">
-						<tr v-if="idx === 0 || !onSameDay(entry, timeEntries[idx-1])">
-							<td colspan="3" class="date-row">
-								{{ dateToDay(entry.start) }}
-							</td>
-						</tr>
-						<tr>
-							<td><input type="checkbox" v-model="entry.selected" :id="'time-entry-' + entry.id"></td>
-							<td style="text-align: right">
-								<label :for="'time-entry-' + entry.id" style="display: block">
-									{{secondsToString(entry.seconds)}}
-								</label>
-							</td>
-							<td style="padding-left: 1em">
-								{{ entry.description }}
-								<div>
-									<project v-if="entry.project_id" :project-id="entry.project_id"></project>
-									<span v-if="entry.project_id && entry.tag_ids.length"> • </span>
-									<tag v-for="tagId in entry.tag_ids" :tag-id="tagId"></tag>
-								</div>
-							</td>
-						</tr>
-					</template>
-				</tbody>
-			</table>
+			<interval-report :time-entries="timeEntries" v-if="timeEntries" />
 		</div>
 	</div>
 </template>
@@ -87,16 +48,14 @@ import DateSelector from "./DateSelector.vue";
 import {useTimeEntriesStore} from "../stores/TimeEntries";
 import {DetailedReport, Project as ProjectAPI, Tag as TagAPI} from "../TogglAPI";
 import {DateTime} from "luxon";
-import Tag from "./Tag.vue";
-import Project from "./Project.vue";
 import ProjectSelector from "./ProjectSelector.vue";
 import TagSelector from "./TagSelector.vue";
-import SelectableTimeEntry, {createSelectableTimeEntries} from "./SelectableTimeEntry";
-import SummaryAndControls from "./SummaryAndControls.vue";
-import { secondsToString as secToStr } from "./formatters";
-import {useCurrentStore} from "../stores/Current";
+import SelectableTimeEntry, {createSelectableTimeEntries} from "./intervalReport/SelectableTimeEntry";
+import SummaryAndControls from "./intervalReport/SummaryAndControls.vue";
+import EditorDialog from "./entryEditor/EditorDialog.vue";
+import IntervalReport from "./intervalReport/IntervalReport.vue";
+import Status from "./status/Status.vue";
 
-const secondsToString = secToStr;
 const togglStore = useTogglStore();
 const timeEntriesStore = useTimeEntriesStore();
 const timeEntries = ref<SelectableTimeEntry[]>([]);
@@ -105,11 +64,10 @@ const limitToProject = ref<ProjectAPI | null>(null);
 const limitToTags = ref<TagAPI[]>([]);
 const dateFrom = ref(DateTime.now().startOf("month"))
 const dateTo = ref(DateTime.now().endOf("month"))
-const current = useCurrentStore()
 
-function dateToDay(date: string): string {
-	return DateTime.fromISO(date).toLocaleString({ weekday: 'long', month: 'long', day: '2-digit' })
-}
+
+
+
 
 async function getTimeEntries() {
 	const tagIds = limitToTags.value.map( (t) => t.id);
@@ -117,19 +75,4 @@ async function getTimeEntries() {
 		await timeEntriesStore.getTimeEntries(dateFrom.value, dateTo.value, limitToProject.value?.id, tagIds) as DetailedReport[]
 	).sort( (a, b) => a.start.localeCompare(b.start)); // Data is probably pre-sorted already, but just in case!
 }
-
-/** Do the two time entries take place on the same day? */
-function onSameDay(a: SelectableTimeEntry, b: SelectableTimeEntry): boolean {
-	return DateTime.fromISO(a.start).toISODate() == DateTime.fromISO(b.start).toISODate()
-}
 </script>
-
-<style scoped>
-	.date-row {
-		text-align: center;
-		font-size: 16px;
-		padding-top: 1em;
-		padding-bottom: 0.25em;
-		font-weight: bold;
-	}
-</style>
