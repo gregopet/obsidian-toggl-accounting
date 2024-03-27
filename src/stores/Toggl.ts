@@ -35,6 +35,9 @@ export const useTogglStore = defineStore('toggl', () => {
 	/** My tags */
 	const tags = ref<Tag[]>([])
 
+	/** The API key that was last used to log in (used for checking whether it had changed) */
+	let currentApiKey: string | undefined;
+
 	/** Resolves a tag by its ID */
 	function tag(id: number): Tag {
 		return tags.value.find((tag) => tag.id === id)!!;
@@ -78,6 +81,7 @@ export const useTogglStore = defineStore('toggl', () => {
 
 	/** Tries to log into Toggl, fetches projects and tags if login was successful */
 	async function login(apiKey: string) {
+		currentApiKey = apiKey;
 		if (voca.isBlank(apiKey)) {
 			loginState.value = "NONE"
 		} else {
@@ -103,6 +107,11 @@ export const useTogglStore = defineStore('toggl', () => {
 		}
 	}
 
+	/** Returns true if the provided API key does not match the one currently stored */
+	function didApiKeyChange(apiKey: string) {
+		return apiKey != currentApiKey;
+	}
+
 	/** Refreshes the user's intrinsic data (workspaces, projects, tags). */
 	async function refresh() {
 		if (loginState.value === "OK") {
@@ -124,6 +133,6 @@ export const useTogglStore = defineStore('toggl', () => {
 	}
 
 	return {
-		loginState, me, projects, project, tags, tag, login, refresh, togglRequest, assertOk
+		loginState, me, projects, project, tags, tag, login, refresh, togglRequest, assertOk, didApiKeyChange
 	}
 })

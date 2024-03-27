@@ -39,7 +39,7 @@ function stop() {
 	.entry-and-button {
 		display: flex;
 		justify-content: space-between;
-
+		align-items: center;
 	}
 
 	.entry-and-button .button {
@@ -77,7 +77,6 @@ function stop() {
 		background-color: var(--text-normal);
 	}
 
-
 	.stop {
 		position: relative;;
 		width: 1em;
@@ -87,5 +86,9 @@ function stop() {
 		background-color: var(--text-normal);
 	}
 
+	.entry-and-button .button:hover .stop {
+		border-color: var(--background-primary);
+		background-color: var(--background-primary);
+	}
 
 </style>

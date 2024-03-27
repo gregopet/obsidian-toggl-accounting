@@ -17,6 +17,10 @@
 	<div v-else-if="togglStore.loginState === 'OK'">
 		<status />
 
+		<hr>
+
+		<h2></h2>
+
 		<div>
 			Select date:
 			<date-selector v-model:dateFrom="dateFrom" v-model:dateTo="dateTo"></date-selector>

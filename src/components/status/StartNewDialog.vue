@@ -9,6 +9,8 @@ import {DateTime} from "luxon";
 import {useAsyncState} from "@vueuse/core";
 import TagSelector from "../TagSelector.vue";
 import {useCurrentStore} from "../../stores/Current";
+import {useObsidanStore} from "../../stores/Obsidian";
+import voca from "voca";
 
 const togglStore = useTogglStore();
 const timeEntryStore = useTimeEntriesStore();
@@ -24,6 +26,7 @@ onMounted(() => {
 	autofocus.value.focus();
 })
 
+const defaultTags = useObsidanStore().settings?.defaultTags;
 const entryName = ref("");
 const project = ref<Project | null>(null);
 const tag = ref<TagAPI[]>([]);
@@ -72,15 +75,17 @@ function doubleTagClick(entry: any) {
 
 /** Start the time entry */
 async function create() {
-	await useCurrentStore().startCurrent(entryName.value, tag.value.map(t => t.name), project.value?.id, minutesAgo.value)
-	modal.value.close();
+	if (!voca.isBlank(entryName.value)) {
+		await useCurrentStore().startCurrent(entryName.value, tag.value.map(t => t.name), project.value?.id, minutesAgo.value)
+		modal.value.close();
+	}
 }
 
 </script>
 
 <template>
-	<modal title="What are you working on?" @close="props.onClose()" ref="modal">
-		<div>
+	<modal title="What are you working on?" @close="props.onClose()" ref="modal" >
+		<div @keydown.ctrl.enter="create()">
 			<div class="new-entry">
 				<input placeholder="Enter the timer name or select one below" ref="autofocus" v-model="entryName">
 			</div>
@@ -93,9 +98,6 @@ async function create() {
 				</ul>
 			</div>
 		</div>
-		<div class="new-entry-tags">
-			<tag-selector v-model="tag" />
-		</div>
 		<div class="new-entry-modifiers">
 			<project-selector v-model="project" no-selection-text="No project" />
 			<span class="time-modifier">
@@ -105,6 +107,9 @@ async function create() {
 				</label>
 			</span>
 			<button @click="create()">Start</button>
+		</div>
+		<div class="new-entry-tags">
+			<tag-selector v-model="tag" :default-tags="defaultTags" />
 		</div>
 	</modal>
 </template>

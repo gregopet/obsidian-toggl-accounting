@@ -110,8 +110,9 @@ export default class AccountingPlugin extends Plugin {
 
 	async saveSettings() {
 		await this.saveData(this.settings);
-		useTogglStore().login(this.settings.apiKey);
+		const togglstore = useTogglStore();
+		if (togglstore.didApiKeyChange(this.settings.apiKey)) {
+			useTogglStore().login(this.settings.apiKey);
+		}
 	}
 }
-
-

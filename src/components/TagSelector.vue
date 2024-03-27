@@ -1,7 +1,7 @@
 <template>
 	<v-select
 		:multiple="true"
-		:options="togglStore.tags"
+		:options="tags"
 		label="name"
 		v-model="model"
 		placeholder="All tags"
@@ -24,13 +24,24 @@
 /* Allows users to pick a multiple tags */
 import {useTogglStore} from "../stores/Toggl";
 import {Tag} from "../TogglAPI";
-import {defineModel} from "vue";
+import {defineModel, onBeforeMount} from "vue";
 import VSelect from "vue-select";
 import "vue-select/dist/vue-select.css";
 import TagControl from "./Tag.vue";
 
-const togglStore = useTogglStore()
+const tags = useTogglStore().tags
 const model = defineModel<Tag[]>();
+const props = defineProps<{
+	/** If provided, default tags will be used on component creation when the model is empty */
+	defaultTags?: string[]
+}>();
+
+onBeforeMount(() => {
+	if (!model.value?.length && props.defaultTags?.length) {
+		const defaultTags = tags.filter(t => props.defaultTags!.contains(t.name));
+		model.value = defaultTags;
+	}
+})
 
 </script>
 

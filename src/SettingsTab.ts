@@ -26,5 +26,15 @@ export default class ObsidianSettingsTab extends PluginSettingTab {
 					this.plugin.settings.apiKey = value;
 					await this.plugin.saveSettings();
 				}));
+		new Setting(containerEl)
+			.setName("Default tags")
+			.setDesc("Tags to decorate new tags with (comma separated)")
+			.addText(text => text
+				.setPlaceholder("Your comma-separated tags")
+				.setValue(this.plugin.settings.defaultTags.join(", "))
+				.onChange(async(value: string)=> {
+					this.plugin.settings.defaultTags = value.split(",").map(s => s.trim())
+					await this.plugin.saveSettings();
+				}));
 	}
 }

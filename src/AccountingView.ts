@@ -26,7 +26,7 @@ export default class AccountingView extends ItemView {
 
 		const app = createApp(Test)
 		app.use(createPinia())
-		useObsidanStore().registerApp(this.app, this.plugin)
+		useObsidanStore().registerApp(this.app, this.plugin, this.plugin.settings)
 		app.mount(this.contentEl)
 		useTogglStore().login(this.plugin.settings.apiKey).then(() => {
 			useCurrentStore().refreshCurrent()
