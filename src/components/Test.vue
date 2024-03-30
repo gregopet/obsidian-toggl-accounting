@@ -15,68 +15,34 @@
 		There was an error logging in! Try checking your internet connection.
 	</div>
 	<div v-else-if="togglStore.loginState === 'OK'">
-		<status />
+		<div v-if="!isReportActive">
+			<status />
+			<hr>
+			<report-criteria v-model:dateFrom="dateFrom" v-model:dateTo="dateTo" v-model:project="limitToProject" v-model:tags="limitToTags" />
+			<button @click="isReportActive = true">Get entries</button>
+		</div>
 
-		<hr>
-
-		<h2></h2>
-
-		<div>
-			Select date:
-			<date-selector v-model:dateFrom="dateFrom" v-model:dateTo="dateTo"></date-selector>
-		</div>
-		<div>
-			<label>
-				Select project:
-				<project-selector v-model="limitToProject" no-selection-text="All projects" />
-			</label>
-		</div>
-		<div>
-			<label>
-				Select tags:
-				<tag-selector v-model="limitToTags" />
-			</label>
-		</div>
-		<div>
-			<button @click="getTimeEntries()">Get entries</button>
-			<summary-and-controls :entries="selectedTimeEntries" @entriesChanged="getTimeEntries()"></summary-and-controls>
-			<interval-report :time-entries="timeEntries" v-if="timeEntries" />
-		</div>
+		<interval-report :date-from="dateFrom" :date-to="dateTo" :project="limitToProject" :tags="limitToTags" v-if="isReportActive" @close="isReportActive = false" />
 	</div>
 </template>
 
 <script lang="ts" setup>
 import {computed, ref} from "vue";
 import {useTogglStore} from "../stores/Toggl";
-import DateSelector from "./DateSelector.vue";
-import {useTimeEntriesStore} from "../stores/TimeEntries";
-import {DetailedReport, Project as ProjectAPI, Tag as TagAPI} from "../TogglAPI";
+import {Project as ProjectAPI, Tag as TagAPI} from "../TogglAPI";
 import {DateTime} from "luxon";
-import ProjectSelector from "./ProjectSelector.vue";
-import TagSelector from "./TagSelector.vue";
-import SelectableTimeEntry, {createSelectableTimeEntries} from "./intervalReport/SelectableTimeEntry";
-import SummaryAndControls from "./intervalReport/SummaryAndControls.vue";
-import EditorDialog from "./entryEditor/EditorDialog.vue";
 import IntervalReport from "./intervalReport/IntervalReport.vue";
 import Status from "./status/Status.vue";
+import ReportCriteria from "./intervalReport/ReportCriteria.vue";
+import {is} from "@babel/types";
 
 const togglStore = useTogglStore();
-const timeEntriesStore = useTimeEntriesStore();
-const timeEntries = ref<SelectableTimeEntry[]>([]);
-const selectedTimeEntries = computed(() => timeEntries.value.filter((t) => t.selected));
-const limitToProject = ref<ProjectAPI | null>(null);
+const limitToProject = ref<ProjectAPI | undefined>(undefined);
 const limitToTags = ref<TagAPI[]>([]);
 const dateFrom = ref(DateTime.now().startOf("month"))
 const dateTo = ref(DateTime.now().endOf("month"))
 
 
+const isReportActive = ref(false)
 
-
-
-async function getTimeEntries() {
-	const tagIds = limitToTags.value.map( (t) => t.id);
-	timeEntries.value = createSelectableTimeEntries(
-		await timeEntriesStore.getTimeEntries(dateFrom.value, dateTo.value, limitToProject.value?.id, tagIds) as DetailedReport[]
-	).sort( (a, b) => a.start.localeCompare(b.start)); // Data is probably pre-sorted already, but just in case!
-}
 </script>

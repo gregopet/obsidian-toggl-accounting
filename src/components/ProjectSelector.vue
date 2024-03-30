@@ -1,7 +1,7 @@
 <template>
 	<select v-model="model" :style="{ color: model ? model.color : undefined }">
-		<option :selected="!model" :value="null" v-text="noSelectionText"></option>
-		<option v-for="p in togglStore.projects" :selected="model != null && model.id === p.id" :value="p" :style="{ color: p.color }">
+		<option :selected="!model" :value="undefined" v-text="noSelectionText"></option>
+		<option v-for="p in togglStore.projects" :selected="model != undefined && model.id === p.id" :value="p" :style="{ color: p.color }">
 			{{ p.name }}
 		</option>
 	</select>
@@ -13,7 +13,7 @@ import {Project} from "../TogglAPI";
 import {ref, defineModel } from "vue";
 
 const togglStore = useTogglStore()
-const model = defineModel<Project>();
+const model = defineModel<Project | undefined>();
 
 const props = defineProps<{
 	noSelectionText: string | null;

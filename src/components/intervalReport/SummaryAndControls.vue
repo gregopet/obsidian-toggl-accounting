@@ -82,12 +82,11 @@ async function addTag(tag: TagAPI) {
 <style scoped>
 .tally-box {
 	position: sticky;
-	top: 20px;
+	top: 0px;
 
 	background-color: var(--background-secondary);
 	border: var(--input-border-width) solid var(--background-modifier-border);
 	z-index: 50;
-	margin: 1.5em 0;
 	padding: 0.75em;
 }
 </style>
