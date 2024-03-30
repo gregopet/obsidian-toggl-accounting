@@ -28,8 +28,9 @@ import {defineModel, onBeforeMount} from "vue";
 import VSelect from "vue-select";
 import "vue-select/dist/vue-select.css";
 import TagControl from "./Tag.vue";
+import {storeToRefs} from "pinia";
 
-const tags = useTogglStore().tags
+const { tags } = storeToRefs(useTogglStore())
 const model = defineModel<Tag[]>();
 const props = defineProps<{
 	/** If provided, default tags will be used on component creation when the model is empty */
@@ -37,8 +38,9 @@ const props = defineProps<{
 }>();
 
 onBeforeMount(() => {
+	// if the model was empty on initial startup, apply defaults
 	if (!model.value?.length && props.defaultTags?.length) {
-		const defaultTags = tags.filter(t => props.defaultTags!.contains(t.name));
+		const defaultTags = tags.value.filter(t => props.defaultTags!.contains(t.name));
 		model.value = defaultTags;
 	}
 })
