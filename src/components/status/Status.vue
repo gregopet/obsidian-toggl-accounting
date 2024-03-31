@@ -43,6 +43,7 @@ function stop() {
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
+		padding: var(--size-4-4); /** We've overriden this in Obsidian */
 	}
 
 	.entry-and-button .button {

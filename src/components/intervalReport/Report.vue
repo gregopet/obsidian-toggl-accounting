@@ -11,7 +11,7 @@
 -->
 
 <template>
-	<div>
+	<div class="control">
 		<a href="#" @click="emit('close')">Close</a>
 		<summary-and-controls :entries="selectedTimeEntries" @entriesChanged="getTimeEntries()"></summary-and-controls>
 		<table>
@@ -100,6 +100,12 @@ async function getTimeEntries() {
 
 
 <style scoped>
+
+.control {
+	padding: 0 var(--size-4-4);
+	margin-bottom: 2.5em;
+}
+
 .date-row {
 	text-align: center;
 	font-size: 16px;

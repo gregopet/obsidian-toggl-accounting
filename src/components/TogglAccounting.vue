@@ -40,13 +40,22 @@ const isReportActive = ref(false)
 		There was an error logging in! Try checking your internet connection.
 	</div>
 	<div v-else-if="togglStore.loginState === 'OK'">
-		<div v-if="!isReportActive">
+		<div v-if="!isReportActive" class="report-builder">
 			<status />
 			<hr>
-			<report-criteria v-model:dateFrom="dateFrom" v-model:dateTo="dateTo" v-model:project="limitToProject" v-model:tags="limitToTags" />
-			<button @click="isReportActive = true">Get entries</button>
+			<report-criteria v-model:dateFrom="dateFrom" v-model:dateTo="dateTo" v-model:project="limitToProject" v-model:tags="limitToTags" class="report-criteria" />
+			<button @click="isReportActive = true" class="report-button">Get entries</button>
 		</div>
 
 		<interval-report :date-from="dateFrom" :date-to="dateTo" :project="limitToProject" :tags="limitToTags" v-if="isReportActive" @close="isReportActive = false" />
 	</div>
 </template>
+
+<style>
+.workspace-leaf-content[data-type='toggl-accounting'] .view-content {
+	padding: 0; /** Is set to var(--size-4-4) by Obsidian */
+}
+.report-builder {
+	padding: 0 var(--size-4-4); /** We've overriden this in Obsidian */
+}
+</style>

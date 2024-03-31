@@ -22,13 +22,15 @@
 </script>
 
 <template>
-	<div>
-		Reports from
-		<date-selector v-model:dateFrom="dateFrom" v-model:dateTo="dateTo"></date-selector>
-		for
-		<project-selector v-model="project" no-selection-text="All projects" />
-	</div>
-	<div>
-		<tag-selector v-model="tags" />
+	<div class="control">
+		<div>
+			Reports from
+			<date-selector v-model:dateFrom="dateFrom" v-model:dateTo="dateTo"></date-selector>
+			for
+			<project-selector v-model="project" no-selection-text="All projects" />
+		</div>
+		<div>
+			<tag-selector v-model="tags" />
+		</div>
 	</div>
 </template>
