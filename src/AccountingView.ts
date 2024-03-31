@@ -1,6 +1,6 @@
 import {ItemView, WorkspaceLeaf} from "obsidian";
 import {createApp} from "vue";
-import Test from "./components/Test.vue";
+import Test from "./components/TogglAccounting.vue";
 import {createPinia} from "pinia";
 import AccountingPlugin from "./main";
 import {useObsidanStore} from "./stores/Obsidian";
