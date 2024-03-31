@@ -8,7 +8,7 @@ import {ref} from "vue";
 import {useTogglStore} from "../stores/Toggl";
 import {Project as ProjectAPI, Tag as TagAPI} from "../TogglAPI";
 import {DateTime} from "luxon";
-import IntervalReport from "./intervalReport/IntervalReport.vue";
+import IntervalReport from "./intervalReport/Report.vue";
 import Status from "./status/Status.vue";
 import ReportCriteria from "./intervalReport/ReportCriteria.vue";
 
