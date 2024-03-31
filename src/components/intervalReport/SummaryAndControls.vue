@@ -1,9 +1,16 @@
+<!--
+	A box that accepts a range of time entries and displays their total time. It also allows removing one or more of
+	their tags by pressing a button (only buttons for tags actually present on the tasks will be offered) or assign
+	them additional tags found on previous time entries.
+
+	Accepts following properties:
+	- entries: the time entries to display
+
+	Emits:
+	- entriesChanged() -> some entries were updated
+-->
 <script lang="ts" setup>
 
-/*
- * A box displaying the total selected time and offers controls to add or remove tags on selected tasks.
- * Emits a 'entriesChanged' event when it had caused a change the rest of the plugin should be aware of.
- */
 import SelectableTimeEntry from "./SelectableTimeEntry";
 import {computed} from "vue";
 import {Tag as TagAPI} from "../../TogglAPI";
@@ -12,15 +19,16 @@ import { secondsToString as secToStr } from "../../display/duration";
 import {useTimeEntriesStore} from "../../stores/TimeEntries";
 import Tag from "../Tag.vue";
 
+const props = defineProps<{
+	entries: SelectableTimeEntry[]
+}>()
+const emit = defineEmits(["entriesChanged"])
+
 interface TagWithCounts {
 	tag: TagAPI;
 	entriesWithTag: number;
 }
 
-const props = defineProps<{
-	entries: SelectableTimeEntry[]
-}>()
-const emit = defineEmits(["entriesChanged"])
 const secondsToString = secToStr;
 const togglStore = useTogglStore();
 const timeEntriesStore = useTimeEntriesStore();

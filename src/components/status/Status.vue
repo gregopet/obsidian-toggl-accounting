@@ -1,20 +1,11 @@
-<template>
-	<div class="entry-and-button">
-		<div class="entry">
-			<no-timer v-if="!status.current"></no-timer>
-			<running-timer v-else :timer="status.current"></running-timer>
-		</div>
-		<div class="button" @click="status.current ? stop() : startNewIsOpen = true">
-			<div v-if="!status.current" class="play"></div>
-			<div v-else class="stop"></div>
-		</div>
-		<start-new-dialog v-if="startNewIsOpen" @close="startNewIsOpen = false" />
-	</div>
-</template>
-
+<!--
+	A parent control that will, if a time entry is being tracked, display the <running-timer> child control. In order
+	for the user to be able to click on as wide area as possible, the click logic <running-timer> for both controls is
+	triggered from here, and for this reason the control also renders the <start-new-dialog> child control (via which
+	one can choose to start tracking a new time entry).
+-->
 <script lang="ts" setup>
 import {useCurrentStore} from "../../stores/Current";
-import NoTimer from "./NoTimer.vue";
 import RunningTimer from "./RunningTimer.vue";
 import {ref} from "vue";
 import StartNewDialog from "./StartNewDialog.vue";
@@ -26,9 +17,21 @@ const startNewIsOpen = ref(false);
 function stop() {
 	status.stopCurrent();
 }
-
-
 </script>
+
+<template>
+	<div class="entry-and-button">
+		<div class="entry">
+			<span v-if="!status.current">No timer is currently running</span>
+			<running-timer v-else :timer="status.current"></running-timer>
+		</div>
+		<div class="button" @click="status.current ? stop() : startNewIsOpen = true">
+			<div v-if="!status.current" class="play"></div>
+			<div v-else class="stop"></div>
+		</div>
+		<start-new-dialog v-if="startNewIsOpen" @close="startNewIsOpen = false" />
+	</div>
+</template>
 
 <style scoped>
 

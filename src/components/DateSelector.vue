@@ -1,3 +1,13 @@
+<!--
+	A relative interval picker. One can select the following date ranges: today, yesterday, this month, last month, this
+	year, last year. It also allows a custom selection where from/to dates can be selected directly. The selector does
+	not allow open intervals: both from and to must be selected before the control will emit a model update.
+
+	It accepts two model properties:
+	- dateFrom
+	- dateTo
+-->
+
 <script lang="ts" setup>
 
 /*

@@ -1,17 +1,31 @@
-/** A dialog for an editor that allows us to change the current task's properties */
+<!--
+	Vue interface to Obsidian model dialogs. Takes the following properties:
+	- (default slot): the content to display inside the dialog
+	- title: the title to display on top of the dialog
+
+	It emits the following events:
+	- close() -> called just before Obsidian's "close" is called on the dialog, useful for performing outside logic.
+	             Since the user can also close the dialog by pressing Escape or clicking outside of the dialog, it's
+	             a very good idea to clean up the Vue condition that caused the dialog to open in the first place.
+
+	It exposes the following programmatic handles:
+	- close() -> does the same as if the user had clicked on the X icon or pressed Escape or clicked outside of the
+	             dialog
+
+-->
 <script lang="ts" setup>
 import { Modal, App } from 'obsidian';
 import { h, nextTick, onBeforeMount, onMounted, ref, useSlots } from 'vue';
 import { useObsidanStore } from '../stores/Obsidian';
 import {getCurrentInstance, toRaw} from "vue";
 
-const obsidian = useObsidanStore();
-const mountPoint = ref<null | HTMLElement>(null);
-
 const props = defineProps<{
     title: string;
 	onClose?: () => any
 }>();
+
+const obsidian = useObsidanStore();
+const mountPoint = ref<null | HTMLElement>(null);
 
 class SettingsModal extends Modal {
     constructor(app: App) {

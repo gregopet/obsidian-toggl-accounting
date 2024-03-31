@@ -1,3 +1,28 @@
+<!--
+	The main plugin view that verifies that the user has a valid Toggl token configured. If login is OK, it then
+	displays the currently tracked time entry <status> and the <report-criteria> (plus activation button) via which
+	a time range of tasks can be fetched & handled.
+-->
+<script lang="ts" setup>
+import {ref} from "vue";
+import {useTogglStore} from "../stores/Toggl";
+import {Project as ProjectAPI, Tag as TagAPI} from "../TogglAPI";
+import {DateTime} from "luxon";
+import IntervalReport from "./intervalReport/IntervalReport.vue";
+import Status from "./status/Status.vue";
+import ReportCriteria from "./intervalReport/ReportCriteria.vue";
+
+const togglStore = useTogglStore();
+const limitToProject = ref<ProjectAPI | undefined>(undefined);
+const limitToTags = ref<TagAPI[]>([]);
+const dateFrom = ref(DateTime.now().startOf("month"))
+const dateTo = ref(DateTime.now().endOf("month"))
+
+
+const isReportActive = ref(false)
+
+</script>
+
 <template>
 	<div v-if="togglStore.loginState === 'IN_PROGRESS'">
 		Logging in..
@@ -25,24 +50,3 @@
 		<interval-report :date-from="dateFrom" :date-to="dateTo" :project="limitToProject" :tags="limitToTags" v-if="isReportActive" @close="isReportActive = false" />
 	</div>
 </template>
-
-<script lang="ts" setup>
-import {computed, ref} from "vue";
-import {useTogglStore} from "../stores/Toggl";
-import {Project as ProjectAPI, Tag as TagAPI} from "../TogglAPI";
-import {DateTime} from "luxon";
-import IntervalReport from "./intervalReport/IntervalReport.vue";
-import Status from "./status/Status.vue";
-import ReportCriteria from "./intervalReport/ReportCriteria.vue";
-import {is} from "@babel/types";
-
-const togglStore = useTogglStore();
-const limitToProject = ref<ProjectAPI | undefined>(undefined);
-const limitToTags = ref<TagAPI[]>([]);
-const dateFrom = ref(DateTime.now().startOf("month"))
-const dateTo = ref(DateTime.now().endOf("month"))
-
-
-const isReportActive = ref(false)
-
-</script>

@@ -1,3 +1,13 @@
+<!--
+	A modal dialog from which users can choose which time entry they would like to work on next. It presents several
+	previous tasks (fetched from Toggl's API) for the user to use as template (click) or use directly (double click).
+
+	The time entry being started must have a name, can belong to a project, and can be tagged with one or more tags.
+
+	It emits:
+	- @close() -> inherited from its Obsidian modal dialog control, allows cleanup logic when dialog is closed
+-->
+
 <script lang="ts" setup>
 import Modal from "../Modal.vue";
 import {ref, onMounted} from "vue";
@@ -12,16 +22,15 @@ import {useCurrentStore} from "../../stores/Current";
 import {useObsidanStore} from "../../stores/Obsidian";
 import voca from "voca";
 
-const togglStore = useTogglStore();
-const timeEntryStore = useTimeEntriesStore();
-
-const modal = ref();
-
 const props = defineProps<{
 	onClose: () => any
 }>();
-
+const modal = ref();
 const autofocus = ref();
+
+const togglStore = useTogglStore();
+const timeEntryStore = useTimeEntriesStore();
+
 onMounted(() => {
 	autofocus.value.focus();
 })

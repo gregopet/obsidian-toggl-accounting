@@ -1,17 +1,10 @@
-<template>
-	<div>
-		<div>
-			<strong>{{timer.timer.description}}</strong>
-		</div>
-		<div>
-			<span :style="{ color: project?.color }">{{ project?.name ?? "(no project)" }}</span>
-			• {{formatTime(timer.timer.start ?? '')}} ⌛ {{ duration }}
-		</div>
-		<div>
-			<tag :tag-id="tagId" v-for="tagId in timer.timer.tag_ids" />
-		</div>
-	</div>
-</template>
+<!--
+	A control that displays a currently running timer. The task's name, tags, project, start time and current duration
+	are displayed.
+
+	It accepts the following properties:
+	- timer: the running timer to display
+-->
 <script lang="ts" setup>
 import {RunningTimeEntry} from "../../TogglAPI";
 import {shortTime} from "../../display/time";
@@ -45,6 +38,19 @@ const duration = computed(() => {
 	return diff.toFormat(format)
 });
 const counter = useInterval(400)
-
-
 </script>
+
+<template>
+	<div>
+		<div>
+			<strong>{{timer.timer.description}}</strong>
+		</div>
+		<div>
+			<span :style="{ color: project?.color }">{{ project?.name ?? "(no project)" }}</span>
+			• {{formatTime(timer.timer.start ?? '')}} ⌛ {{ duration }}
+		</div>
+		<div>
+			<tag :tag-id="tagId" v-for="tagId in timer.timer.tag_ids" />
+		</div>
+	</div>
+</template>

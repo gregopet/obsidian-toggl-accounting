@@ -1,3 +1,32 @@
+<!--
+	A control that lets users select one or more projects tags. It gets the tags directly from the store while accepting
+	an array of Tag objects as its v-model.
+-->
+<script lang="ts" setup>
+import {useTogglStore} from "../stores/Toggl";
+import {Tag} from "../TogglAPI";
+import {defineModel, onBeforeMount} from "vue";
+import VSelect from "vue-select";
+import "vue-select/dist/vue-select.css";
+import TagControl from "./Tag.vue";
+import {storeToRefs} from "pinia";
+
+const model = defineModel<Tag[]>();
+const props = defineProps<{
+	/** If provided, default tags will be used on component creation when the model is empty */
+	defaultTags?: string[]
+}>();
+const { tags } = storeToRefs(useTogglStore())
+
+onBeforeMount(() => {
+	// if the model was empty on initial startup, apply defaults
+	if (!model.value?.length && props.defaultTags?.length) {
+		const defaultTags = tags.value.filter(t => props.defaultTags!.contains(t.name));
+		model.value = defaultTags;
+	}
+})
+</script>
+
 <template>
 	<v-select
 		:multiple="true"
@@ -18,34 +47,6 @@
 		</template>
 	</v-select>
 </template>
-
-
-<script lang="ts" setup>
-/* Allows users to pick a multiple tags */
-import {useTogglStore} from "../stores/Toggl";
-import {Tag} from "../TogglAPI";
-import {defineModel, onBeforeMount} from "vue";
-import VSelect from "vue-select";
-import "vue-select/dist/vue-select.css";
-import TagControl from "./Tag.vue";
-import {storeToRefs} from "pinia";
-
-const { tags } = storeToRefs(useTogglStore())
-const model = defineModel<Tag[]>();
-const props = defineProps<{
-	/** If provided, default tags will be used on component creation when the model is empty */
-	defaultTags?: string[]
-}>();
-
-onBeforeMount(() => {
-	// if the model was empty on initial startup, apply defaults
-	if (!model.value?.length && props.defaultTags?.length) {
-		const defaultTags = tags.value.filter(t => props.defaultTags!.contains(t.name));
-		model.value = defaultTags;
-	}
-})
-
-</script>
 
 <style>
 .v-select{
