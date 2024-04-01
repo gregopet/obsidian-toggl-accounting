@@ -48,7 +48,7 @@ async function save() {
 }
 
 async function cancel() {
-	await useTimeEntriesStore().deleteEntry(originalEntry.value?.id);
+	await useTimeEntriesStore().deleteEntry(originalEntry.value!.id);
 	modal.value.close();
 	await useCurrentStore().refreshCurrent();
 }
