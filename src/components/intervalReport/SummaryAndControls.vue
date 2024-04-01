@@ -20,6 +20,8 @@ import {useTogglStore} from "../../stores/Toggl";
 import { secondsToString as secToStr } from "../../display/duration";
 import {useTimeEntriesStore} from "../../stores/TimeEntries";
 import Tag from "../Tag.vue";
+import {DateTime} from "luxon";
+import {shortDateFormatOpts} from "../../display/time";
 
 const props = defineProps<{
 	entries: SelectableTimeEntry[]
@@ -37,6 +39,14 @@ const timeEntriesStore = useTimeEntriesStore();
 
 /** Summed time entries */
 const selectedTime = computed(() => props.entries.reduce((acc, entry) => acc + entry.seconds, 0));
+const earliestDay = computed(() => {
+	const earliest = props.entries.map(e => DateTime.fromISO(e.start)).reduce((acc, candidate) => acc && acc < candidate ? acc : candidate)
+	return earliest?.toLocaleString(shortDateFormatOpts);
+})
+const latestDay = computed(() => {
+	const latest = props.entries.map(e => DateTime.fromISO(e.start)).reduce((acc, candidate) => acc && acc > candidate ? acc : candidate)
+	return latest?.toLocaleString(shortDateFormatOpts);
+})
 
 /** Counts how many entries there are for each tag. */
 const tagsWithCounts = computed<TagWithCounts[]>(() =>
@@ -70,8 +80,12 @@ async function addTag(tag: TagAPI) {
 
 <template>
 	<div class="tally-box">
-		<div v-if="entries?.length">
-			<h3>Total selected time: {{secondsToString(selectedTime)}}</h3>
+		<div v-if="entries?.length" class="totals">
+			<h3>Total selected: {{secondsToString(selectedTime)}}</h3>
+			<small>
+				<span>{{earliestDay}}</span>
+				<span v-if="earliestDay != latestDay"> - {{latestDay}}</span>
+			</small>
 		</div>
 		<h3 v-else>No entries selected</h3>
 		<div v-if="tagsWithNonZeroCounts.length > 0">
@@ -96,6 +110,16 @@ async function addTag(tag: TagAPI) {
 </template>
 
 <style scoped>
+.totals {
+	margin-bottom: 1.5em;
+}
+.totals h3 {
+	margin-bottom: 0;
+}
+.totals small {
+	margin-left: 0.1em;
+}
+
 .tally-box {
 	position: sticky;
 	top: 0px;
