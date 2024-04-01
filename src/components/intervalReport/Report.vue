@@ -13,34 +13,42 @@
 <template>
 	<div class="control">
 		<a href="#" @click="emit('close')">Close</a>
-		<summary-and-controls :entries="selectedTimeEntries" @entriesChanged="getTimeEntries()"></summary-and-controls>
-		<table>
-			<tbody>
-				<template v-for="(entry, idx) in timeEntries">
-					<tr v-if="idx === 0 || !onSameDay(entry, timeEntries[idx-1])">
-						<td colspan="3" class="date-row">
-							{{ formatDay(entry.start) }}
-						</td>
-					</tr>
-					<tr :title="fromToTitle(entry)">
-						<td><input type="checkbox" v-model="entry.selected" :id="'time-entry-' + entry.id"></td>
-						<td style="text-align: right">
-							<label :for="'time-entry-' + entry.id" style="display: block">
-								{{secondsToString(entry.seconds)}}
-							</label>
-						</td>
-						<td style="padding-left: 1em">
-							{{ entry.description }}
-							<div>
-								<project v-if="entry.project_id" :project-id="entry.project_id"></project>
-								<span v-if="entry.project_id && entry.tag_ids.length"> • </span>
-								<tag v-for="tagId in entry.tag_ids" :tag-id="tagId"></tag>
-							</div>
-						</td>
-					</tr>
-				</template>
-			</tbody>
-		</table>
+		<div v-if="!timeEntriesLoaded" class="loading">
+			.. loading ..
+		</div>
+		<div v-else>
+			<h3 v-if="!timeEntries.length" class="no-entries">
+				No entries matched filter!
+			</h3>
+			<summary-and-controls v-else :entries="selectedTimeEntries" @entriesChanged="getTimeEntries()"></summary-and-controls>
+			<table>
+				<tbody>
+					<template v-for="(entry, idx) in timeEntries">
+						<tr v-if="idx === 0 || !onSameDay(entry, timeEntries[idx-1])">
+							<td colspan="3" class="date-row">
+								{{ formatDay(entry.start) }}
+							</td>
+						</tr>
+						<tr :title="fromToTitle(entry)">
+							<td><input type="checkbox" v-model="entry.selected" :id="'time-entry-' + entry.id"></td>
+							<td style="text-align: right">
+								<label :for="'time-entry-' + entry.id" style="display: block">
+									{{secondsToString(entry.seconds)}}
+								</label>
+							</td>
+							<td style="padding-left: 1em">
+								{{ entry.description }}
+								<div>
+									<project v-if="entry.project_id" :project-id="entry.project_id"></project>
+									<span v-if="entry.project_id && entry.tag_ids.length"> • </span>
+									<tag v-for="tagId in entry.tag_ids" :tag-id="tagId"></tag>
+								</div>
+							</td>
+						</tr>
+					</template>
+				</tbody>
+			</table>
+		</div>
 	</div>
 </template>
 
@@ -62,9 +70,10 @@ const emit = defineEmits(["close"])
 const timeEntriesStore = useTimeEntriesStore();
 const secondsToString = secToStr;
 const formatDay = longDate;
+const timeEntriesLoaded = ref(false);
 
 onMounted(() => {
-	getTimeEntries()
+	getTimeEntries().then( () => timeEntriesLoaded.value = true);
 })
 
 const props = defineProps<{
@@ -100,6 +109,10 @@ async function getTimeEntries() {
 
 
 <style scoped>
+
+.loading {
+	text-align: center;
+}
 
 .control {
 	padding: 0 var(--size-4-4);
