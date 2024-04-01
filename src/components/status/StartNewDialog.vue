@@ -96,7 +96,7 @@ async function create() {
 	<modal title="What are you working on?" @close="props.onClose()" ref="modal" >
 		<div @keydown.ctrl.enter="create()">
 			<div class="new-entry">
-				<input placeholder="Enter the timer name or select one below" ref="autofocus" v-model="entryName">
+				<input placeholder="Enter the timer name or select one below" ref="autofocus" v-model="entryName" type="text">
 			</div>
 			<div class="previous-entries">
 				<ul>
