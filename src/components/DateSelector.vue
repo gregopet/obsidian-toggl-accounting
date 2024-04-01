@@ -26,7 +26,7 @@ import { ftruncate } from "fs";
  */
 const emit = defineEmits(["update:dateFrom", "update:dateTo"]);
 
-const presets = ["this-year", "this-month", "this-week", "this-day", "last-year", "last-month", "last-day"] as const;
+const presets = ["this-year", "this-month", "this-week", "this-day", "last-year", "last-month", "last-day", "last-week"] as const;
 type DatePreset = typeof presets[number] | "custom";
 
 const props = defineProps<{
