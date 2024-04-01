@@ -8,6 +8,8 @@
 
 	Emits:
 	- entriesChanged() -> some entries were updated
+	- selectAll() -> user clicked the "select all" button
+	- unselectAll() -> user clicked the "unselect all" button
 -->
 <script lang="ts" setup>
 
@@ -22,7 +24,7 @@ import Tag from "../Tag.vue";
 const props = defineProps<{
 	entries: SelectableTimeEntry[]
 }>()
-const emit = defineEmits(["entriesChanged"])
+const emit = defineEmits(["entriesChanged", "selectAll", "unselectAll"])
 
 interface TagWithCounts {
 	tag: TagAPI;
@@ -68,7 +70,9 @@ async function addTag(tag: TagAPI) {
 
 <template>
 	<div class="tally-box">
-		<h3 v-if="entries?.length">Total selected time: {{secondsToString(selectedTime)}}</h3>
+		<div v-if="entries?.length">
+			<h3>Total selected time: {{secondsToString(selectedTime)}}</h3>
+		</div>
 		<h3 v-else>No entries selected</h3>
 		<div v-if="tagsWithNonZeroCounts.length > 0">
 			Remove tag:
@@ -84,6 +88,10 @@ async function addTag(tag: TagAPI) {
 				&nbsp;({{ props.entries.length - tag.entriesWithTag }}/{{ props.entries.length }})
 			</button>
 		</div>
+		<div class="selections">
+			<button @click="emit('selectAll')">Select all</button>
+			<button @click="emit('unselectAll')">Select none</button>
+		</div>
 	</div>
 </template>
 
@@ -96,5 +104,11 @@ async function addTag(tag: TagAPI) {
 	border: var(--input-border-width) solid var(--background-modifier-border);
 	z-index: 50;
 	padding: 0.75em;
+}
+
+.selections {
+	padding-top: 1.5em;
+	display: flex;
+	justify-content: space-between;
 }
 </style>

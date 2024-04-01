@@ -12,7 +12,11 @@
 
 <template>
 	<div class="control">
-		<a href="#" @click="emit('close')">Close</a>
+		<h5>
+			Time entries from {{formatDay(dateFrom.toISO())}} to {{formatDay(dateTo.toISO())}}
+			<br>
+			<a href="#" @click="emit('close')">(close)</a>
+		</h5>
 		<div v-if="!timeEntriesLoaded" class="loading">
 			.. loading ..
 		</div>
@@ -20,7 +24,7 @@
 			<h3 v-if="!timeEntries.length" class="no-entries">
 				No entries matched filter!
 			</h3>
-			<summary-and-controls v-else :entries="selectedTimeEntries" @entriesChanged="getTimeEntries()"></summary-and-controls>
+			<summary-and-controls v-else :entries="selectedTimeEntries" @entriesChanged="getTimeEntries()" @select-all="selectAll()" @unselect-all="unselectAll()"></summary-and-controls>
 			<table>
 				<tbody>
 					<template v-for="(entry, idx) in timeEntries">
@@ -88,6 +92,13 @@ const timeEntries = ref<SelectableTimeEntry[]>([]);
 
 /** The time entries that were selected by the user */
 const selectedTimeEntries = computed(() => timeEntries.value.filter((t) => t.selected));
+
+function unselectAll() {
+	timeEntries.value.forEach(e => e.selected = false);
+}
+function selectAll() {
+	timeEntries.value.forEach(e => e.selected = true);
+}
 
 /** Do the two time entries take place on the same day? */
 function onSameDay(a: SelectableTimeEntry, b: SelectableTimeEntry): boolean {
