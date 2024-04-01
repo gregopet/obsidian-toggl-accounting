@@ -33,7 +33,7 @@ class SettingsModal extends Modal {
     }
 
     onOpen(): void {
-        mountPoint.value = this.modalEl;
+        mountPoint.value = this.modalEl.querySelector('.modal-content');
         this.titleEl.setText(props.title);
     }
 
