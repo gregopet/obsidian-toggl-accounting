@@ -79,5 +79,15 @@ export const useTimeEntriesStore = defineStore('time-entries', () => {
 		return reply.json as UpdateTimeEntry
 	}
 
-	return { tagIds, getTimeEntries, removeTag, addTag, updateTask }
+	/** Delete the time entry with the given ID */
+	async function deleteEntry(timeEntryId: number): Promise<void> {
+		const method = "DELETE";
+		const togglStore = useTogglStore();
+
+		togglStore.assertOk(await togglStore.togglRequest(
+			`/api/v9/workspaces/{workspace_id}/time_entries/${timeEntryId}`, { method }
+		));
+	}
+
+	return { tagIds, getTimeEntries, removeTag, addTag, updateTask, deleteEntry }
 });

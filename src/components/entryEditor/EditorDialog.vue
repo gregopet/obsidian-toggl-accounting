@@ -13,6 +13,7 @@ import {useTogglStore} from "../../stores/Toggl";
 import {DateTime} from "luxon";
 import {useTimeEntriesStore} from "../../stores/TimeEntries";
 import TagSelector from "../TagSelector.vue";
+import {useCurrentStore} from "../../stores/Current";
 
 const props = defineProps<{
     onClose: () => any,
@@ -44,6 +45,12 @@ async function save() {
 	originalEntry.value!.stop = updated.stop
 	originalEntry.value!.tag_ids = updated.tag_ids
 	modal.value.close();
+}
+
+async function cancel() {
+	await useTimeEntriesStore().deleteEntry(originalEntry.value?.id);
+	modal.value.close();
+	await useCurrentStore().refreshCurrent();
 }
 </script>
 
@@ -77,6 +84,7 @@ async function save() {
 		</div>
 		<div class="buttons">
 			<button @click="save()">Save</button>
+			<button @click="cancel()" class="mod-warning">Delete</button>
 		</div>
     </modal>
 </template>
