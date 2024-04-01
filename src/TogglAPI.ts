@@ -116,7 +116,7 @@ export interface UpdateTimeEntry {
 	duration?: number;
 	/** Used to create a time entry with a duration but without a stop time */
 	duronly?: boolean;
-	project_id?: number;
+	project_id?: number | null;
 	start?: string;
 	start_date?: string;
 	/** Stop time in UTC, can be omitted if it's still running or created with "duration" and "duronly" fields */

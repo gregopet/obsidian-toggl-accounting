@@ -2,7 +2,7 @@ import {defineStore} from "pinia";
 import {ref} from "vue";
 import {DateTime, Duration} from "luxon";
 import {useTogglStore} from "./Toggl";
-import {DetailedReport, DetailedReportQuery, Tag, UpdateTimeEntry} from "../TogglAPI";
+import {DetailedReport, DetailedReportQuery, RunningTimeEntry, Tag, UpdateTimeEntry} from "../TogglAPI";
 
 export const useTimeEntriesStore = defineStore('time-entries', () => {
 
@@ -44,6 +44,7 @@ export const useTimeEntriesStore = defineStore('time-entries', () => {
 		return addRemoveTag(timeEntryIds, tag, "add")
 	}
 
+	/** Bulk add or remove tags to multiple issues */
 	async function addRemoveTag(timeEntryIds: number[], tag: Tag, operation: "add" | "remove"): Promise<void> {
 		const togglStore = useTogglStore();
 		const req: UpdateTimeEntry = {
@@ -59,5 +60,24 @@ export const useTimeEntriesStore = defineStore('time-entries', () => {
 		))
 	}
 
-	return { tagIds, getTimeEntries, removeTag, addTag }
+	/** Updates the given time entry. Tags must be given in the "tags" property, not tag IDs! */
+	async function updateTask(timeEntry: RunningTimeEntry): Promise<UpdateTimeEntry> {
+		const togglStore = useTogglStore();
+		const body: UpdateTimeEntry = {
+			description: timeEntry.description,
+			start: timeEntry.start,
+			stop: timeEntry.stop,
+			project_id: timeEntry.project_id ?? null,
+			tags: timeEntry.tags,
+		}
+		// TODO: tag changes!
+		const method = 'PUT';
+		const reply = togglStore.assertOk(await togglStore.togglRequest(
+			`/api/v9/workspaces/{workspace_id}/time_entries/${timeEntry.id}`,
+			{ method, body: JSON.stringify(body) }
+		));
+		return reply.json as UpdateTimeEntry
+	}
+
+	return { tagIds, getTimeEntries, removeTag, addTag, updateTask }
 });

@@ -7,11 +7,12 @@
 <script lang="ts" setup>
 import {useCurrentStore} from "../../stores/Current";
 import RunningTimer from "./RunningTimer.vue";
-import {ref} from "vue";
+import {computed, ref} from "vue";
 import StartNewDialog from "./StartNewDialog.vue";
 
 const status = useCurrentStore()
 const startNewIsOpen = ref(false);
+const timerIsRunning = computed(() => status.current && !status.current.stop)
 
 /** Stop the running timer */
 function stop() {
@@ -22,11 +23,11 @@ function stop() {
 <template>
 	<div class="entry-and-button">
 		<div class="entry">
-			<span v-if="!status.current">No timer is currently running</span>
-			<running-timer v-else :timer="status.current"></running-timer>
+			<span v-if="!timerIsRunning">No timer is currently running</span>
+			<running-timer v-else :timer="status.current!"></running-timer>
 		</div>
 		<div class="button" @click="status.current ? stop() : startNewIsOpen = true">
-			<div v-if="!status.current" class="play"></div>
+			<div v-if="!timerIsRunning" class="play"></div>
 			<div v-else class="stop"></div>
 		</div>
 		<start-new-dialog v-if="startNewIsOpen" @close="startNewIsOpen = false" />

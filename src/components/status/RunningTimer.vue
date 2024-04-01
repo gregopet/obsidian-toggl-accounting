@@ -9,10 +9,11 @@
 import {RunningTimeEntry} from "../../TogglAPI";
 import {shortTime} from "../../display/time";
 import {useTogglStore} from "../../stores/Toggl";
-import {computed, onMounted} from "vue";
+import {computed, onMounted, ref} from "vue";
 import Tag from "../Tag.vue";
 import {DateTime} from "luxon";
 import {useInterval} from "@vueuse/core";
+import EditorDialog from "../entryEditor/EditorDialog.vue";
 const formatTime = shortTime
 const togglStore = useTogglStore();
 
@@ -38,12 +39,18 @@ const duration = computed(() => {
 	return diff.toFormat(format)
 });
 const counter = useInterval(400)
+
+const editing = ref(false);
+function edit() {
+	editing.value = true;
+}
 </script>
 
 <template>
 	<div>
 		<div>
 			<strong>{{timer.timer.description}}</strong>
+			<span @click="edit()">✎</span>
 		</div>
 		<div>
 			<span :style="{ color: project?.color }">{{ project?.name ?? "(no project)" }}</span>
@@ -52,5 +59,6 @@ const counter = useInterval(400)
 		<div>
 			<tag :tag-id="tagId" v-for="tagId in timer.timer.tag_ids" />
 		</div>
+		<editor-dialog v-if="editing" @close="editing = false" v-model="timer.timer" />
 	</div>
 </template>
