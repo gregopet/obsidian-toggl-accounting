@@ -102,7 +102,7 @@ async function create() {
 				<ul>
 					<li v-for="entry in timeEntries.state.value" v-if="timeEntries.isReady" @click="singleTagClick(entry)" @dblclick="doubleTagClick(entry)">
 						<span v-text="entry.description"></span>
-						<span v-text="getProject(entry.project_id)?.name"></span>
+						<span v-text="getProject(entry.project_id)?.name ?? '(none)'" :style="{ color: (getProject(entry.project_id)?.color ?? 'gray') }"></span>
 					</li>
 				</ul>
 			</div>
@@ -147,6 +147,8 @@ async function create() {
 		display: flex;
 		justify-content: space-between;
 		line-height: 1.5em;
+		border-radius: 0.2em;
+		padding: 0.1em 0.5em;
 	}
 
 	.previous-entries ul li:hover {
