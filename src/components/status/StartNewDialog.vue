@@ -37,7 +37,7 @@ onMounted(() => {
 
 const defaultTags = useObsidanStore().settings?.defaultTags;
 const entryName = ref("");
-const project = ref<Project | null>(null);
+const project = ref<Project | undefined>(undefined);
 const tag = ref<TagAPI[]>([]);
 const minutesAgo = ref(0);
 const timeEntries = useAsyncState(
@@ -73,7 +73,7 @@ function getProject(projectId: number | null) {
 /** Invoked when user clicks on a tag once */
 function singleTagClick(entry: any) {
 	entryName.value = entry.description;
-	project.value = togglStore.projects.filter(p => p.id === entry.project_id).first() ?? null;
+	project.value = togglStore.projects.filter(p => p.id === entry.project_id).first() ?? undefined;
 	tag.value = entry.tag_ids!.map((tid: number) => togglStore.tag(tid));
 }
 
