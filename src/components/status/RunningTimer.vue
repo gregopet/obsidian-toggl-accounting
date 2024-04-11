@@ -17,13 +17,16 @@ import EditorDialog from "../entryEditor/EditorDialog.vue";
 const formatTime = shortTime
 const togglStore = useTogglStore();
 
-const timer = defineProps<{
+const props = defineProps<{
 	timer: RunningTimeEntry
 }>()
 
-const project = computed(() => timer.timer.project_id ? togglStore.project(timer.timer.project_id) : undefined)
+const project = computed(() => {
+	const pid = props.timer.project_id ?? (props.timer as any).pid;
+	return pid ? togglStore.project(pid) : undefined;
+})
 const duration = computed(() => {
-	let start = DateTime.fromISO(timer.timer.start!);
+	let start = DateTime.fromISO(props.timer.start!);
 	if (start > DateTime.now()) start = DateTime.now();
 	const diff = DateTime.now().diff(start);
 	diff.minus({milliseconds: counter.value % 1}); // make the value update together with the timer
@@ -49,16 +52,16 @@ function edit() {
 <template>
 	<div>
 		<div>
-			<strong>{{timer.timer.description}}</strong>
+			<strong>{{ props.timer.description }}</strong>
 			<span @click="edit()">✎</span>
 		</div>
 		<div>
 			<span :style="{ color: project?.color }">{{ project?.name ?? "(no project)" }}</span>
-			• {{formatTime(timer.timer.start ?? '')}} ⌛ {{ duration }}
+			• {{ formatTime(props.timer.start ?? '') }} ⌛ {{ duration }}
 		</div>
 		<div>
-			<tag :tag-id="tagId" v-for="tagId in timer.timer.tag_ids" />
+			<tag :tag-id="tagId" v-for="tagId in props.timer.tag_ids" />
 		</div>
-		<editor-dialog v-if="editing" @close="editing = false" v-model="timer.timer" />
+		<editor-dialog v-if="editing" @close="editing = false" v-model="props.timer" />
 	</div>
 </template>
