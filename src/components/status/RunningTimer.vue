@@ -50,7 +50,7 @@ function edit() {
 	<div>
 		<div>
 			<strong>{{ props.timer.description }}</strong>
-			<span @click="edit()">✎</span>
+			&nbsp;<span @click="edit()" style="cursor: pointer">✎</span>
 		</div>
 		<div>
 			<span :style="{ color: project?.color }">{{ project?.name ?? "(no project)" }}</span>
