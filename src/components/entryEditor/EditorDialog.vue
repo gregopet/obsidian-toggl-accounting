@@ -83,8 +83,8 @@ async function cancel() {
 			<input type="datetime-local" v-model="stop" id="to">
 		</div>
 		<div class="buttons">
-			<button @click="save()">Save</button>
 			<button @click="cancel()" class="mod-warning">Delete</button>
+			<button @click="save()">Save</button>
 		</div>
     </modal>
 </template>
