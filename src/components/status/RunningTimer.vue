@@ -21,10 +21,7 @@ const props = defineProps<{
 	timer: RunningTimeEntry
 }>()
 
-const project = computed(() => {
-	const pid = props.timer.project_id ?? (props.timer as any).pid;
-	return pid ? togglStore.project(pid) : undefined;
-})
+const project = computed(() => props.timer.project_id ? togglStore.project(props.timer.project_id) : undefined);
 const duration = computed(() => {
 	let start = DateTime.fromISO(props.timer.start!);
 	if (start > DateTime.now()) start = DateTime.now();

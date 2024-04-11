@@ -38,11 +38,26 @@ export const useCurrentStore = defineStore('current', () => {
 			const resp = togglStore.assertOk(await togglStore.togglRequest("/api/v8/time_entries/start", { method: 'POST', body, contentType }))
 			if (resp.status < 300) {
 				await nextTick(() => {
-					current.value = resp.json.data;
-					console.log(resp.json.data);
+					current.value = fixNonStandardReply(resp.json.data);
 				});
 			}
 		}
+	}
+
+	/** Response from creating a time entry does not have the same structure as when fetching the response, so we standardize it */
+	function fixNonStandardReply(payload: any): any {
+		const responseBody = { ... payload } // json.data is immutable
+		if (!responseBody.project_id) {
+			responseBody.project_id = responseBody.pid;
+		}
+		if (!responseBody.tag_ids && responseBody.tags) {
+			responseBody.tag_ids = useTogglStore().tags
+				.filter( (t) =>
+					responseBody.tags && responseBody.tags!.findIndex((tName: string) => t.name == tName) >= 0
+				)
+				.map((t) => t.id)
+		}
+		return responseBody;
 	}
 
 	/** Stops the running time entry */
