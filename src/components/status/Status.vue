@@ -9,14 +9,15 @@ import {useCurrentStore} from "../../stores/Current";
 import RunningTimer from "./RunningTimer.vue";
 import {computed, ref} from "vue";
 import StartNewDialog from "./StartNewDialog.vue";
+import {storeToRefs} from "pinia";
 
-const status = useCurrentStore()
+const { current } = storeToRefs(useCurrentStore())
 const startNewIsOpen = ref(false);
-const timerIsRunning = computed(() => status.current && !status.current.stop)
+const timerIsRunning = computed(() => current.value && !current.value.stop)
 
 /** Stop the running timer */
 function stop() {
-	status.stopCurrent();
+	useCurrentStore().stopCurrent();
 }
 </script>
 
@@ -24,9 +25,9 @@ function stop() {
 	<div class="entry-and-button">
 		<div class="entry">
 			<span v-if="!timerIsRunning">No timer is currently running</span>
-			<running-timer v-else :timer="status.current!"></running-timer>
+			<running-timer v-else :timer="current!"></running-timer>
 		</div>
-		<div class="button" @click="status.current ? stop() : startNewIsOpen = true">
+		<div class="button" @click="current ? stop() : startNewIsOpen = true">
 			<div v-if="!timerIsRunning" class="play"></div>
 			<div v-else class="stop"></div>
 		</div>
