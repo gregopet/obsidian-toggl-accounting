@@ -40,7 +40,6 @@ const entryName = ref("");
 const setDebouncedEntryName = useDebounceFn(fn => entryName.value = fn);
 const project = ref<Project | undefined>(undefined);
 const tag = ref<TagAPI[]>([]);
-const minutesAgo = ref(0);
 const timeEntries = useAsyncState(
 	timeEntryStore.getTimeEntries(
 		DateTime.now().minus({days: 10}),
@@ -86,7 +85,7 @@ function doubleTagClick(entry: any) {
 /** Start the time entry */
 async function create() {
 	if (!voca.isBlank(entryName.value)) {
-		await useCurrentStore().startCurrent(entryName.value, tag.value.map(t => t.name), project.value?.id, minutesAgo.value)
+		await useCurrentStore().startCurrent(entryName.value, tag.value.map(t => t.name), project.value?.id)
 		modal.value.close();
 	}
 }
@@ -124,12 +123,6 @@ function filteredPreviousEntries(filter: string): typeof timeEntries.state.value
 		</div>
 		<div class="new-entry-modifiers">
 			<project-selector v-model="project" no-selection-text="No project" />
-			<span class="time-modifier">
-				<label>
-					<input type="number"  min="0" v-model="minutesAgo">
-					minutes ago
-				</label>
-			</span>
 			<button @click="create()">Start</button>
 		</div>
 		<div class="new-entry-tags">
@@ -174,11 +167,6 @@ function filteredPreviousEntries(filter: string): typeof timeEntries.state.value
 	.new-entry-modifiers {
 		display: flex;
 		justify-content: space-between;
-	}
-
-	.new-entry-modifiers .time-modifier input {
-		width: 3em;
-		text-align: center;
 	}
 
 </style>

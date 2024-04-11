@@ -25,13 +25,13 @@ export const useCurrentStore = defineStore('current', () => {
 	}
 
 	/** Starts a new time entry */
-	async function startCurrent(description: string, tags: string[], projectId: number | undefined, minutes_ago: number) {
+	async function startCurrent(description: string, tags: string[], projectId: number | undefined) {
 		const togglStore = useTogglStore();
 		if (togglStore.loginState == "OK") {
 			const created_with = "obsidian-toggl-accounting";
 			const body = JSON.stringify({
 				"time_entry": {
-					description, pid: projectId, tags, start: DateTime.now().minus({minutes: minutes_ago}).toISO(), created_with
+					description, pid: projectId, tags, created_with
 				}
 			});
 			const contentType = "application/json";
@@ -39,6 +39,7 @@ export const useCurrentStore = defineStore('current', () => {
 			if (resp.status < 300) {
 				await nextTick(() => {
 					current.value = resp.json.data;
+					console.log(resp.json.data);
 				});
 			}
 		}
