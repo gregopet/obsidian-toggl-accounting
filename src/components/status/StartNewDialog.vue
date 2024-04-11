@@ -16,7 +16,7 @@ import ProjectSelector from "../ProjectSelector.vue";
 import {DetailedReport, Project, Tag as TagAPI} from "../../TogglAPI";
 import {useTimeEntriesStore} from "../../stores/TimeEntries";
 import {DateTime} from "luxon";
-import {useAsyncState} from "@vueuse/core";
+import {useAsyncState, useDebounceFn} from "@vueuse/core";
 import TagSelector from "../TagSelector.vue";
 import {useCurrentStore} from "../../stores/Current";
 import {useObsidanStore} from "../../stores/Obsidian";
@@ -37,6 +37,7 @@ onMounted(() => {
 
 const defaultTags = useObsidanStore().settings?.defaultTags;
 const entryName = ref("");
+const setDebouncedEntryName = useDebounceFn(fn => entryName.value = fn);
 const project = ref<Project | undefined>(undefined);
 const tag = ref<TagAPI[]>([]);
 const minutesAgo = ref(0);
@@ -72,7 +73,7 @@ function getProject(projectId: number | null) {
 
 /** Invoked when user clicks on a tag once */
 function singleTagClick(entry: any) {
-	entryName.value = entry.description;
+	setDebouncedEntryName(entry.description);
 	project.value = togglStore.projects.filter(p => p.id === entry.project_id).first() ?? undefined;
 	tag.value = entry.tag_ids!.map((tid: number) => togglStore.tag(tid));
 }
@@ -90,6 +91,20 @@ async function create() {
 	}
 }
 
+/**
+ * Filter previous task entries based on the contents of the description bar. Match time entry descriptions and project
+ * names.
+ */
+function filteredPreviousEntries(filter: string): typeof timeEntries.state.value {
+	if (voca.isBlank(filter)) return timeEntries.state.value;
+	const lcaseFilters = filter.toLowerCase().split(" ").filter(f => !voca.isBlank(f));
+	const projects = togglStore.projects.filter(p => lcaseFilters.some(f => p.name.toLowerCase().contains(f))).map(p => p.id);
+	return timeEntries.state.value.filter(e =>
+		lcaseFilters.some(f => e.description.toLowerCase().contains(f)) ||
+		projects.length && e.project_id != null && projects.contains(e.project_id)
+	)
+}
+
 </script>
 
 <template>
@@ -100,7 +115,7 @@ async function create() {
 			</div>
 			<div class="previous-entries">
 				<ul>
-					<li v-for="entry in timeEntries.state.value" v-if="timeEntries.isReady" @click="singleTagClick(entry)" @dblclick="doubleTagClick(entry)">
+					<li v-for="entry in filteredPreviousEntries(entryName)" v-if="timeEntries.isReady" @click="singleTagClick(entry)" @dblclick="doubleTagClick(entry)">
 						<span v-text="entry.description"></span>
 						<span v-text="getProject(entry.project_id)?.name ?? '(none)'" :style="{ color: (getProject(entry.project_id)?.color ?? 'gray') }"></span>
 					</li>
