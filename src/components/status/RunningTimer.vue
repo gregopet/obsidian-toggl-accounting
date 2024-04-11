@@ -54,7 +54,7 @@ function edit() {
 		</div>
 		<div>
 			<span :style="{ color: project?.color }">{{ project?.name ?? "(no project)" }}</span>
-			• {{ formatTime(props.timer.start ?? '') }} ⌛ {{ duration }}
+			⌛ {{ duration }}
 		</div>
 		<div>
 			<tag :tag-id="tagId" v-for="tagId in props.timer.tag_ids" />
