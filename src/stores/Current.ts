@@ -30,21 +30,22 @@ export const useCurrentStore = defineStore('current', () => {
 		if (togglStore.loginState == "OK") {
 			const created_with = "obsidian-toggl-accounting";
 			const body = JSON.stringify({
-				"time_entry": {
-					description, pid: projectId, tags, created_with
-				}
+				description, pid: projectId, tags, created_with, duration: -1654686174, wid: useTogglStore().workspaceId, end: null, start: DateTime.now().toString()
 			});
 			const contentType = "application/json";
-			const resp = togglStore.assertOk(await togglStore.togglRequest("/api/v8/time_entries/start", { method: 'POST', body, contentType }))
+			const resp = togglStore.assertOk(await togglStore.togglRequest("/api/v9/time_entries", { method: 'POST', body, contentType }))
 			if (resp.status < 300) {
 				await nextTick(() => {
-					current.value = fixNonStandardReply(resp.json.data);
+					current.value = resp.json;
 				});
 			}
 		}
 	}
 
-	/** Response from creating a time entry does not have the same structure as when fetching the response, so we standardize it */
+	/**
+	 * Response from creating a time entry does not have the same structure as when fetching the response, so we standardize it
+	 * Obsolete after API calls were ported to v9?!
+	 */
 	function fixNonStandardReply(payload: any): any {
 		const responseBody = { ... payload } // json.data is immutable
 		if (!responseBody.project_id) {
@@ -65,8 +66,8 @@ export const useCurrentStore = defineStore('current', () => {
 		if (current.value) {
 			const togglStore = useTogglStore();
 			if (togglStore.loginState == "OK") {
-				const method = 'PUT';
-				const resp = togglStore.assertOk(await togglStore.togglRequest(`/api/v8/time_entries/${current.value.id}/stop`, { method }))
+				const method = 'PATCH';
+				const resp = togglStore.assertOk(await togglStore.togglRequest(`/api/v9/workspaces/{workspace_id}/time_entries/${current.value.id}/stop`, { method }))
 				if (resp.status < 300) {
 					await nextTick(() => {
 						current.value = null;

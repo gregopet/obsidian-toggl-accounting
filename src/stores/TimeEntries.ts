@@ -44,18 +44,20 @@ export const useTimeEntriesStore = defineStore('time-entries', () => {
 		return addRemoveTag(timeEntryIds, tag, "add")
 	}
 
-	/** Bulk add or remove tags to multiple issues */
-	async function addRemoveTag(timeEntryIds: number[], tag: Tag, operation: "add" | "remove"): Promise<void> {
+	/**
+	 * Bulk add or remove tags to multiple issues
+	 * https://engineering.toggl.com/docs/api/time_entry/index.html#patch-bulk-editing-time-entries
+	 * */
+	async function addRemoveTag(timeEntryIds: number[], tag: Tag, op: "add" | "remove"): Promise<void> {
 		const togglStore = useTogglStore();
-		const req: UpdateTimeEntry = {
-			tags: [tag.name],
-			tag_action: operation,
+		const payload = {
+			op, path: "/tags", value: [tag.name]
 		}
 		togglStore.assertOk(await togglStore.togglRequest(
-			`/api/v8/time_entries/${timeEntryIds.join(",")}`,
+			`/api/v9/workspaces/{workspace_id}/time_entries/${timeEntryIds.join(",")}`,
 			{
-				method: "PUT",
-				body: JSON.stringify({ time_entry: req }),
+				method: "PATCH",
+				body: JSON.stringify([payload]),
 			}
 		))
 	}

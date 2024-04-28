@@ -133,6 +133,6 @@ export const useTogglStore = defineStore('toggl', () => {
 	}
 
 	return {
-		loginState, me, projects, project, tags, tag, login, refresh, togglRequest, assertOk, didApiKeyChange
+		loginState, me, projects, project, tags, tag, login, refresh, togglRequest, assertOk, didApiKeyChange, workspaceId
 	}
 })
