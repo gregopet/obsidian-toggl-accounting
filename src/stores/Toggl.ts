@@ -6,6 +6,7 @@ import type {Me, Project, Tag} from "../TogglAPI";
 
 type LoginState = "NONE" | "IN_PROGRESS" | "INVALID_CREDENTIALS" | "OK" | "ERROR";
 type Path = `${'/'}${string}`
+const DEBUG_API= false; // Poor man's debugging - Obsidian isn't displaying anything in the "Network" tab of developer tools :(
 
 /**
  * A store interacting with Toggl's API.
@@ -55,11 +56,23 @@ export const useTogglStore = defineStore('toggl', () => {
 		const actualPath = path.replace("{workspace_id}", workspaceId.value?.toString() ?? "");
 		console.debug(`Firing a ${params.method ?? "GET"} request to`, actualPath)
 		try {
-			return obsidian.requestUrl({
+			if (DEBUG_API) {
+				console.log((params.method ?? "GET") + " https://api.track.toggl.com" + actualPath);
+				console.log("Headers: ", headers)
+				console.log("Params: ", params)
+			}
+
+			const response = obsidian.requestUrl({
 				url: "https://api.track.toggl.com" + actualPath,
 				...params,
 				headers
-			})
+			});
+			if (DEBUG_API) {
+				response.catch(reason => { console.log("Response failed: ", reason) }).then(resp => {
+					console.log("Response: ", resp)
+				});
+			}
+			return response;
 		} catch (error) {
 			const description =  `Toggl API call failed with error ${error}!`
 			error.value = description;
