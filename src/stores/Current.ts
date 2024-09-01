@@ -42,25 +42,6 @@ export const useCurrentStore = defineStore('current', () => {
 		}
 	}
 
-	/**
-	 * Response from creating a time entry does not have the same structure as when fetching the response, so we standardize it
-	 * Obsolete after API calls were ported to v9?!
-	 */
-	function fixNonStandardReply(payload: any): any {
-		const responseBody = { ... payload } // json.data is immutable
-		if (!responseBody.project_id) {
-			responseBody.project_id = responseBody.pid;
-		}
-		if (!responseBody.tag_ids && responseBody.tags) {
-			responseBody.tag_ids = useTogglStore().tags
-				.filter( (t) =>
-					responseBody.tags && responseBody.tags!.findIndex((tName: string) => t.name == tName) >= 0
-				)
-				.map((t) => t.id)
-		}
-		return responseBody;
-	}
-
 	/** Stops the running time entry */
 	async function stopCurrent() {
 		if (current.value) {
