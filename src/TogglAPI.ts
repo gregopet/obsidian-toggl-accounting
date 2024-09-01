@@ -134,3 +134,8 @@ export interface UpdateTimeEntry {
 export interface RunningTimeEntry extends UpdateTimeEntry{
 	id: number;
 }
+
+/** Does the time entry have the temporal components? */
+export function hasTemporal(instance: UpdateTimeEntry): instance is TimeEntryTemporal {
+	return (instance as any).seconds != undefined && (instance as any).seconds != null;
+}

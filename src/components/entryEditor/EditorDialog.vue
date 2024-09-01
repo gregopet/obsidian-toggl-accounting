@@ -2,11 +2,14 @@
 	A modal dialog via which entries can be modified: their name, tags, project and start/end times can all be
 	manipulated. Currently running tasks will close automatically if their end time is set.
 
+	It emits:
+	- @deleted(entryId) -> if the entry being edited was deleted
+
 	This dialog is still a work in progress.
 -->
 <script lang="ts" setup>
 import Modal from "../Modal.vue";
-import {RunningTimeEntry, TimeEntry} from "../../TogglAPI";
+import {hasTemporal, RunningTimeEntry, TimeEntry} from "../../TogglAPI";
 import {computed, ref} from "vue";
 import ProjectSelector from "../ProjectSelector.vue";
 import {useTogglStore} from "../../stores/Toggl";
@@ -18,6 +21,8 @@ import {useCurrentStore} from "../../stores/Current";
 const props = defineProps<{
     onClose: () => any,
 }>();
+
+const emit = defineEmits(['deleted']);
 
 const localDateTimeFormat = "yyyy-MM-dd'T'hh:mm";
 
@@ -44,13 +49,16 @@ async function save() {
 	originalEntry.value!.start = updated.start
 	originalEntry.value!.stop = updated.stop
 	originalEntry.value!.tag_ids = updated.tag_ids
+	if (hasTemporal(originalEntry.value!) && updated.duration) {
+		originalEntry.value!.seconds = updated.duration
+	}
 	modal.value.close();
 }
 
 async function cancel() {
 	await useTimeEntriesStore().deleteEntry(originalEntry.value!.id);
+	emit("deleted", originalEntry.value?.id)
 	modal.value.close();
-	await useCurrentStore().refreshCurrent();
 }
 </script>
 

@@ -33,7 +33,7 @@
 								{{ formatDay(entry.start) }}
 							</td>
 						</tr>
-						<tr :title="fromToTitle(entry)">
+						<tr :title="fromToTitle(entry)" @click.right="editor(entry)">
 							<td><input type="checkbox" v-model="entry.selected" :id="'time-entry-' + entry.id"></td>
 							<td style="text-align: right">
 								<label :for="'time-entry-' + entry.id" style="display: block">
@@ -53,6 +53,7 @@
 				</tbody>
 			</table>
 		</div>
+		<editor-dialog v-if="editedTimeEntry" @close="closeEditor()" v-model="editedTimeEntry" @deleted="deleted" />
 	</div>
 </template>
 
@@ -66,8 +67,9 @@ import {DateTime} from "luxon";
 import {shortTime, longDate} from "../../display/time";
 import SummaryAndControls from "./SummaryAndControls.vue";
 import {DetailedReport, Project as ProjectAPI, Tag as TagAPI } from "../../TogglAPI";
-import {computed, onMounted, ref} from "vue";
+import {computed, nextTick, onMounted, ref} from "vue";
 import {useTimeEntriesStore} from "../../stores/TimeEntries";
+import EditorDialog from "../entryEditor/EditorDialog.vue";
 
 const emit = defineEmits(["close"])
 
@@ -89,6 +91,9 @@ const props = defineProps<{
 
 /** The time entries that were pulled from Toggl API */
 const timeEntries = ref<SelectableTimeEntry[]>([]);
+
+/** The time entry we are editing */
+const editedTimeEntry = ref<SelectableTimeEntry | undefined>(undefined);
 
 /** The time entries that were selected by the user */
 const selectedTimeEntries = computed(() => timeEntries.value.filter((t) => t.selected));
@@ -115,6 +120,24 @@ async function getTimeEntries() {
 	timeEntries.value = createSelectableTimeEntries(
 		await timeEntriesStore.getTimeEntries(props.dateFrom, props.dateTo, props.project?.id, tagIds) as DetailedReport[]
 	).sort( (a, b) => a.start.localeCompare(b.start)); // Data is probably pre-sorted already, but just in case!
+}
+
+function editor(entry: SelectableTimeEntry) {
+	editedTimeEntry.value = entry;
+}
+
+function closeEditor() {
+	console.log(editedTimeEntry.value);
+	editedTimeEntry.value = undefined;
+	nextTick(() => {})
+}
+
+/** An entry was deleted using the editor dialog */
+function deleted(entryId: number) {
+	var index = timeEntries.value.findIndex(entry => entry.id === entryId);
+	if (index >= 0) {
+		timeEntries.value.splice(index, 1);
+	}
 }
 </script>
 

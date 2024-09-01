@@ -14,6 +14,7 @@ import Tag from "../Tag.vue";
 import {DateTime} from "luxon";
 import {useInterval} from "@vueuse/core";
 import EditorDialog from "../entryEditor/EditorDialog.vue";
+import {useCurrentStore} from "../../stores/Current";
 const formatTime = shortTime
 const togglStore = useTogglStore();
 
@@ -44,6 +45,13 @@ const editing = ref(false);
 function edit() {
 	editing.value = true;
 }
+
+function deleted(timeEntryId: number) {
+	if (props.timer && props.timer.id === timeEntryId) {
+		useCurrentStore().refreshCurrent();
+	}
+}
+
 </script>
 
 <template>
@@ -59,6 +67,6 @@ function edit() {
 		<div>
 			<tag :tag-id="tagId" v-for="tagId in props.timer.tag_ids" />
 		</div>
-		<editor-dialog v-if="editing" @close="editing = false" v-model="props.timer" />
+		<editor-dialog v-if="editing" @close="editing = false" v-model="props.timer" @deleted="deleted" />
 	</div>
 </template>
