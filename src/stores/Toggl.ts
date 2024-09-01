@@ -54,7 +54,7 @@ export const useTogglStore = defineStore('toggl', () => {
 		const headers = params.headers || {};
 		headers.authorization = authorization;
 		const actualPath = path.replace("{workspace_id}", workspaceId.value?.toString() ?? "");
-		console.debug(`Firing a ${params.method ?? "GET"} request to`, actualPath)
+		if (DEBUG_API) console.debug(`Firing a ${params.method ?? "GET"} request to`, actualPath)
 		try {
 			if (DEBUG_API) {
 				console.log((params.method ?? "GET") + " https://api.track.toggl.com" + actualPath);
@@ -65,13 +65,17 @@ export const useTogglStore = defineStore('toggl', () => {
 			const response = obsidian.requestUrl({
 				url: "https://api.track.toggl.com" + actualPath,
 				...params,
-				headers
+				headers,
+				throw: false
 			});
-			if (DEBUG_API) {
-				response.catch(reason => { console.log("Response failed: ", reason) }).then(resp => {
-					console.log("Response: ", resp)
-				});
-			}
+			response.then(r => {
+				if (r.status >= 300) {
+					console.warn(`"Toggl request failed with status ${r.status}:`, r.text)
+				}
+				else if (DEBUG_API) {
+					console.log(`"Toggl request completed with status ${r.status} and returned`, r.json)
+				}
+			})
 			return response;
 		} catch (error) {
 			const description =  `Toggl API call failed with error ${error}!`
