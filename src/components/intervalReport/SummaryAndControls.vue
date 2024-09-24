@@ -103,8 +103,8 @@ async function addTag(tag: TagAPI) {
 			</button>
 		</div>
 		<div class="selections">
-			<button @click="emit('selectAll')">Select all</button>
-			<button @click="emit('unselectAll')">Select none</button>
+			<a href="#" @click.prevent="emit('selectAll')">Select all</a>
+			<a href="#" @click.prevent="emit('unselectAll')">Select none</a>
 		</div>
 	</div>
 </template>
@@ -134,5 +134,9 @@ async function addTag(tag: TagAPI) {
 	padding-top: 1.5em;
 	display: flex;
 	justify-content: space-between;
+}
+
+.selections a {
+	text-decoration: none;
 }
 </style>
