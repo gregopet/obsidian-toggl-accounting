@@ -44,8 +44,9 @@
 								{{ entry.description }}
 								<div>
 									<project v-if="entry.project_id" :project-id="entry.project_id"></project>
-									<span v-if="entry.project_id && entry.tag_ids.length"> • </span>
-									<tag v-for="tagId in entry.tag_ids" :tag-id="tagId"></tag>
+									<span class="floating-tags">
+										<tag v-for="tagId in entry.tag_ids" :tag-id="tagId"></tag>
+									</span>
 								</div>
 							</td>
 						</tr>
@@ -143,6 +144,9 @@ function deleted(entryId: number) {
 
 
 <style scoped>
+tr td {
+	margin-bottom: 0.35em;
+}
 
 .loading {
 	text-align: center;
@@ -159,5 +163,14 @@ function deleted(entryId: number) {
 	padding-top: 1em;
 	padding-bottom: 0.25em;
 	font-weight: bold;
+}
+
+
+
+.floating-tags {
+	display: inline-block;
+	white-space: nowrap;
+	float: right;
+	text-align: right;
 }
 </style>
