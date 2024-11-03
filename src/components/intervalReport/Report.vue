@@ -41,7 +41,7 @@
 								</label>
 							</td>
 							<td style="padding-left: 1em">
-								{{ entry.description }}
+								<issue-tracker-linker>{{ entry.description }}</issue-tracker-linker>
 								<div>
 									<project v-if="entry.project_id" :project-id="entry.project_id"></project>
 									<span class="floating-tags">
@@ -71,6 +71,7 @@ import {DetailedReport, Project as ProjectAPI, Tag as TagAPI } from "../../Toggl
 import {computed, nextTick, onMounted, ref} from "vue";
 import {useTimeEntriesStore} from "../../stores/TimeEntries";
 import EditorDialog from "../entryEditor/EditorDialog.vue";
+import IssueTrackerLinker from "../IssueTrackerLinker.vue";
 
 const emit = defineEmits(["close"])
 

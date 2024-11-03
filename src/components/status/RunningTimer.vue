@@ -15,6 +15,7 @@ import {DateTime} from "luxon";
 import {useInterval} from "@vueuse/core";
 import EditorDialog from "../entryEditor/EditorDialog.vue";
 import {useCurrentStore} from "../../stores/Current";
+import IssueTrackerLinker from "../IssueTrackerLinker.vue";
 const formatTime = shortTime
 const togglStore = useTogglStore();
 
@@ -57,7 +58,7 @@ function deleted(timeEntryId: number) {
 <template>
 	<div>
 		<div>
-			<strong>{{ props.timer.description }}</strong>
+			<strong><issue-tracker-linker>{{ props.timer.description }}</issue-tracker-linker></strong>
 			&nbsp;<span @click="edit()" style="cursor: pointer">✎</span>
 		</div>
 		<div>
