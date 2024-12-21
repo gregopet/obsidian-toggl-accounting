@@ -1,7 +1,7 @@
 import {defineStore} from "pinia";
 import {computed, ref} from "vue";
 import voca from "voca";
-import obsidian, {RequestUrlParam, RequestUrlResponsePromise} from "obsidian";
+import obsidian, {Notice, RequestUrlParam, RequestUrlResponsePromise} from "obsidian";
 import type {Me, Project, Tag} from "../TogglAPI";
 
 type LoginState = "NONE" | "IN_PROGRESS" | "INVALID_CREDENTIALS" | "OK" | "ERROR";
@@ -74,7 +74,8 @@ export const useTogglStore = defineStore('toggl', () => {
 			});
 			response.then(r => {
 				if (r.status >= 300) {
-					console.warn(`"Toggl request failed with status ${r.status}:`, r.text)
+					new Notice(`Toggl request failed with status ${r.status}: ${r.text}`);
+					console.warn(`Toggl request failed with status ${r.status}:`, r.text)
 				}
 				else if (DEBUG_API) {
 					console.log(`"Toggl request completed with status ${r.status} and returned`, r.json)
