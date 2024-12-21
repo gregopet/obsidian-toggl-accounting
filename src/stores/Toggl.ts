@@ -21,6 +21,9 @@ export const useTogglStore = defineStore('toggl', () => {
 	/** Where are we in the login process? */
 	const loginState = ref<LoginState>("NONE")
 
+	/** Is a Toggl request currently in-flight? */
+	const requestInFlight = ref<Boolean>(false);
+
 	/** The currently selected workspace id (currently only the default workspace is supported!) */
 	const workspaceId = computed(() => me.value?.default_workspace_id)
 
@@ -56,6 +59,7 @@ export const useTogglStore = defineStore('toggl', () => {
 		const actualPath = path.replace("{workspace_id}", workspaceId.value?.toString() ?? "");
 		if (DEBUG_API) console.debug(`Firing a ${params.method ?? "GET"} request to`, actualPath)
 		try {
+			requestInFlight.value = true;
 			if (DEBUG_API) {
 				console.log((params.method ?? "GET") + " https://api.track.toggl.com" + actualPath);
 				console.log("Headers: ", headers)
@@ -81,6 +85,9 @@ export const useTogglStore = defineStore('toggl', () => {
 			const description =  `Toggl API call failed with error ${error}!`
 			error.value = description;
 			throw new Error(description)
+		}
+		finally {
+			requestInFlight.value = false;
 		}
 	}
 
@@ -150,6 +157,6 @@ export const useTogglStore = defineStore('toggl', () => {
 	}
 
 	return {
-		loginState, me, projects, project, tags, tag, login, refresh, togglRequest, assertOk, didApiKeyChange, workspaceId
+		loginState, me, projects, project, tags, tag, login, refresh, togglRequest, assertOk, didApiKeyChange, workspaceId, requestInFlight
 	}
 })
