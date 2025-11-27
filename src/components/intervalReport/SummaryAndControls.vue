@@ -15,13 +15,13 @@
 
 import SelectableTimeEntry from "./SelectableTimeEntry";
 import {computed} from "vue";
-import {Tag as TagAPI} from "../../TogglAPI";
-import {useTogglStore} from "../../stores/Toggl";
-import { secondsToString as secToStr } from "../../display/duration";
+import { secondsToString as secToStr, durationToString as durToString } from "../../display/duration";
 import {useTimeEntriesStore} from "../../stores/TimeEntries";
 import Tag from "../Tag.vue";
-import {DateTime} from "luxon";
+import {DateTime, Duration} from "luxon";
 import {shortDateFormatOpts} from "../../display/time";
+import {components} from "../../Clockify";
+import {useClockifyStore} from "../../stores/Clockify";
 
 const props = defineProps<{
 	entries: SelectableTimeEntry[]
@@ -29,32 +29,33 @@ const props = defineProps<{
 const emit = defineEmits(["entriesChanged", "selectAll", "unselectAll"])
 
 interface TagWithCounts {
-	tag: TagAPI;
+	tag: components["schemas"]["TagDtoV1"];
 	entriesWithTag: number;
 }
 
 const secondsToString = secToStr;
-const togglStore = useTogglStore();
+const durationToString = durToString;
+const clockifyStore = useClockifyStore();
 const timeEntriesStore = useTimeEntriesStore();
 
 /** Summed time entries */
-const selectedTime = computed(() => props.entries.reduce((acc, entry) => acc + entry.seconds, 0));
+const selectedTime = computed(() => props.entries.reduce((acc, entry) => acc.plus(Duration.fromISO(entry.timeInterval!.duration!)), Duration.fromMillis(0)));
 const earliestDay = computed(() => {
-	const earliest = props.entries.map(e => DateTime.fromISO(e.start)).reduce((acc, candidate) => acc && acc < candidate ? acc : candidate)
+	const earliest = props.entries.map(e => DateTime.fromISO(e.timeInterval!.start!)).reduce((acc, candidate) => acc && acc < candidate ? acc : candidate)
 	return earliest?.toLocaleString(shortDateFormatOpts);
 })
 const latestDay = computed(() => {
-	const latest = props.entries.map(e => DateTime.fromISO(e.start)).reduce((acc, candidate) => acc && acc > candidate ? acc : candidate)
+	const latest = props.entries.map(e => DateTime.fromISO(e.timeInterval!.start!)).reduce((acc, candidate) => acc && acc > candidate ? acc : candidate)
 	return latest?.toLocaleString(shortDateFormatOpts);
 })
 
 /** Counts how many entries there are for each tag. */
 const tagsWithCounts = computed<TagWithCounts[]>(() =>
-	togglStore.tags.map((tag) => {
+	clockifyStore.tags.map((tag) => {
 		return {
 			tag: tag,
 			entriesWithTag: props.entries.filter( (entry) =>
-				entry.tag_ids.some( (tagId) => tagId === tag.id)
+				entry.tagIds!.some( (tagId) => tagId === tag.id)
 			).length ?? 0
 		}
 	})
@@ -63,16 +64,15 @@ const tagsWithNonZeroCounts = computed(() => tagsWithCounts.value.filter((t) => 
 const tagsNotPresentOnAllEntries = computed(() => tagsWithCounts.value.filter((t) => t.entriesWithTag < props.entries.length) )
 
 /** Removes [tag] from the currently selected time entries */
-async function removeTag(tag: TagAPI) {
-	const timeEntryIds = props.entries.map( (t) => t.id);
-	await timeEntriesStore.removeTag(timeEntryIds, tag)
+async function removeTag(tag: components["schemas"]["TagDtoV1"]) {
+	await timeEntriesStore.removeTag(props.entries, tag)
 	emit("entriesChanged")
 }
 
 /** Adds [tag] to the currently selected time entries */
-async function addTag(tag: TagAPI) {
-	const timeEntryIds = props.entries.map( (t) => t.id);
-	await timeEntriesStore.addTag(timeEntryIds, tag)
+async function addTag(tag: components["schemas"]["TagDtoV1"]) {
+	const timeEntryIds = props.entries.map( (t) => t.id!);
+	await timeEntriesStore.addTag(props.entries, tag)
 	emit("entriesChanged")
 }
 </script>
@@ -81,7 +81,7 @@ async function addTag(tag: TagAPI) {
 <template>
 	<div class="tally-box">
 		<div v-if="entries?.length" class="totals">
-			<h3>Total selected: {{secondsToString(selectedTime)}}</h3>
+			<h3>Total selected: {{durationToString(selectedTime.toString())}}</h3>
 			<small>
 				<span>{{earliestDay}}</span>
 				<span v-if="earliestDay != latestDay"> - {{latestDay}}</span>
@@ -91,14 +91,14 @@ async function addTag(tag: TagAPI) {
 		<div v-if="tagsWithNonZeroCounts.length > 0">
 			Remove tag:
 			<button @click="removeTag(tag.tag)" v-for="tag in tagsWithNonZeroCounts">
-				<tag :tag-id="tag.tag.id"></tag>
+				<tag :tag-id="tag.tag.id!"></tag>
 				&nbsp;({{ tag.entriesWithTag }}/{{ props.entries.length }})
 			</button>
 		</div>
 		<div v-if="tagsNotPresentOnAllEntries.length > 0">
 			Add tag:
 			<button @click="addTag(tag.tag)" v-for="tag in tagsNotPresentOnAllEntries">
-				<tag :tag-id="tag.tag.id"></tag>
+				<tag :tag-id="tag.tag.id!"></tag>
 				&nbsp;({{ props.entries.length - tag.entriesWithTag }}/{{ props.entries.length }})
 			</button>
 		</div>

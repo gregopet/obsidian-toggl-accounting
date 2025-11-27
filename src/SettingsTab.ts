@@ -17,8 +17,8 @@ export default class ObsidianSettingsTab extends PluginSettingTab {
 		containerEl.createEl('h2', {text: 'Settings Obsidian Accounting Plugin'});
 
 		new Setting(containerEl)
-			.setName('Obsidian API key')
-			.setDesc('Find it at https://track.toggl.com/profile')
+			.setName('Clockify API key')
+			.setDesc('Generate one at https://app.clockify.me/manage-api-keys')
 			.addText(text => text
 				.setPlaceholder('Enter your secret')
 				.setValue(this.plugin.settings.apiKey)

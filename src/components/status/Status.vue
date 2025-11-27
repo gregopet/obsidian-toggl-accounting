@@ -14,10 +14,11 @@ import {computed, ref} from "vue";
 import StartNewDialog from "./StartNewDialog.vue";
 import {mapState, storeToRefs} from "pinia";
 import {useTogglStore} from "../../stores/Toggl";
+import {useClockifyStore} from "../../stores/Clockify";
 
 const { current } = storeToRefs(useCurrentStore())
 const startNewIsOpen = ref(false);
-const timerIsRunning = computed(() => current.value && !current.value.stop)
+const timerIsRunning = computed(() => !!current.value.length)
 const isRequestInFlight = mapState(useTogglStore, ['requestInFlight']);
 
 /** Stop the running timer */
@@ -31,9 +32,9 @@ function stop() {
 	<div class="entry-and-button">
 		<div class="entry">
 			<span v-if="!timerIsRunning">No timer is currently running</span>
-			<running-timer v-else :timer="current!"></running-timer>
+			<running-timer v-else v-for="timer in current" :timer="timer"></running-timer>
 		</div>
-		<div class="button" @click="current ? stop() : startNewIsOpen = true">
+		<div class="button" @click="current.length > 0 ? stop() : startNewIsOpen = true">
 			<div v-if="!timerIsRunning" class="play"></div>
 			<div v-else class="stop"></div>
 		</div>
@@ -51,7 +52,7 @@ function stop() {
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
-		padding: var(--size-4-4); /** We've overriden this in Obsidian */
+		padding: var(--size-4-4) 0; /** We've overriden this in Obsidian */
 	}
 
 	.entry-and-button .button {

@@ -13,24 +13,35 @@
 	import { Project, Tag } from "../../TogglAPI";
 	import TagSelector from "../TagSelector.vue";
 	import ProjectSelector from "../ProjectSelector.vue";
+	import {components} from "../../Clockify";
 
 
 	const dateFrom = defineModel<DateTime>("dateFrom")
 	const dateTo = defineModel<DateTime | undefined>("dateTo")
-	const tags = defineModel<Tag[]>("tags")
-	const project = defineModel<Project | undefined>("project")
+	const tags = defineModel<components["schemas"]["TagDtoV1"][]>("tags")
+	const project = defineModel<components["schemas"]["ProjectDtoV1"] | undefined>("project")
 </script>
 
 <template>
 	<div class="control">
 		<div>
-			Reports from
-			<date-selector v-model:dateFrom="dateFrom" v-model:dateTo="dateTo"></date-selector>
-			for
-			<project-selector v-model="project" no-selection-text="All projects" />
-		</div>
-		<div>
-			<tag-selector v-model="tags" />
+			<h3>Reports</h3>
+			<div>
+				<date-selector v-model:dateFrom="dateFrom" v-model:dateTo="dateTo"></date-selector>
+			</div>
+			<div>
+				<project-selector v-model="project" no-selection-text="All projects" />
+			</div>
+			<div>
+				<tag-selector v-model="tags" />
+			</div>
 		</div>
 	</div>
 </template>
+
+<style scoped>
+	.control div div {
+		width: 100%;
+		margin-bottom: 0.5em;
+	}
+</style>

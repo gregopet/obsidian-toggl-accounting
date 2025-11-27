@@ -3,13 +3,14 @@
 	- tagId (Toggl's ID of the tag, it will be fetched from server automatically)
 -->
 <script lang="ts" setup>
-import {useTogglStore} from "../stores/Toggl";
 import {computed} from "vue";
+import {useClockifyStore} from "../stores/Clockify";
 
 const props = defineProps<{
-	tagId: number;
+	tagId: string;
 }>()
-const tag = computed(() => useTogglStore().tag(props.tagId))
+const tag = computed(() => useClockifyStore().tag(props.tagId))
+
 </script>
 
 <template>

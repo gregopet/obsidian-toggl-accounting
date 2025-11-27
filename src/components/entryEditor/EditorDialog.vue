@@ -17,6 +17,7 @@ import {DateTime} from "luxon";
 import {useTimeEntriesStore} from "../../stores/TimeEntries";
 import TagSelector from "../TagSelector.vue";
 import {useCurrentStore} from "../../stores/Current";
+import {TimeEntryWithRatesDtoV1, useClockifyStore} from "../../stores/Clockify";
 
 const props = defineProps<{
     onClose: () => any,
@@ -26,37 +27,35 @@ const emit = defineEmits(['deleted']);
 
 const localDateTimeFormat = "yyyy-MM-dd'T'hh:mm";
 
-const togglStore = useTogglStore()
-const originalEntry = defineModel<RunningTimeEntry>();
+const clockifyStore = useClockifyStore()
+const originalEntry = defineModel<TimeEntryWithRatesDtoV1>();
 const description = ref(originalEntry.value?.description)
-const project = ref(originalEntry.value?.project_id ? togglStore.project(originalEntry.value.project_id) : undefined)
-const start = ref(DateTime.fromISO(originalEntry.value!.start!).toLocal().toFormat('yyyy-MM-dd\'T\'HH:mm'))
-const stop = ref(originalEntry.value!.stop ? DateTime.fromISO(originalEntry.value!.stop!).toLocal().toFormat(localDateTimeFormat) : null)
-const tags = ref(togglStore.tags.filter(t => originalEntry.value?.tag_ids?.contains(t.id)))
+const project = ref(originalEntry.value?.projectId ? clockifyStore.project(originalEntry.value.projectId) : undefined)
+const start = ref(DateTime.fromISO(originalEntry.value!.timeInterval!.start!).toLocal().toFormat('yyyy-MM-dd'))
+const stop = ref(originalEntry.value!.timeInterval?.end ? DateTime.fromISO(originalEntry.value!.timeInterval.end!).toLocal().toFormat('yyyy-MM-dd') : null)
+const tags = ref(clockifyStore.tags.filter(t => originalEntry.value?.tagIds?.contains(t.id!)))
 
 const modal = ref();
 async function save() {
-	const updated = await useTimeEntriesStore().updateTask({
-		id: originalEntry.value!.id,
+
+	const updated = await useTimeEntriesStore().updateTask(originalEntry.value!.id!, originalEntry.value!.workspaceId!, {
 		description: description.value,
-		project_id: project.value?.id,
-		start: DateTime.fromFormat(start.value, localDateTimeFormat, { zone: 'system' }).toISO(),
-		stop: stop.value ? DateTime.fromFormat(stop.value, localDateTimeFormat, { zone: 'system' }).toISO() : undefined,
-		tags: tags.value.map(t => t.name),
+		projectId: project.value?.id,
+		start: start.value,
+		end: stop.value ?? undefined,
+		tagIds: tags.value.map(t => t.id!),
+		billable: originalEntry.value?.billable,
 	})
 	originalEntry.value!.description = updated.description
-	originalEntry.value!.project_id = updated.project_id
-	originalEntry.value!.start = updated.start
-	originalEntry.value!.stop = updated.stop
-	originalEntry.value!.tag_ids = updated.tag_ids
-	if (hasTemporal(originalEntry.value!) && updated.duration) {
-		originalEntry.value!.seconds = updated.duration
-	}
+	originalEntry.value!.projectId = updated.projectId
+	originalEntry.value!.timeInterval!.start = updated.timeInterval!.start
+	originalEntry.value!.timeInterval!.end = updated.timeInterval!.end
+	originalEntry.value!.tagIds = updated.tagIds
 	modal.value.close();
 }
 
 async function cancel() {
-	await useTimeEntriesStore().deleteEntry(originalEntry.value!.id);
+	await useTimeEntriesStore().deleteEntry(originalEntry.value!.id!);
 	emit("deleted", originalEntry.value?.id)
 	modal.value.close();
 }

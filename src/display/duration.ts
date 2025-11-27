@@ -6,3 +6,8 @@ export function secondsToString(seconds: number) {
 	const format = dur.as('hours') > 1 ? "h'h' m'm'" : "m'm'";
 	return dur.toFormat(format);
 }
+
+
+export function durationToString(duration: string): string {
+	return Duration.fromISO(duration).toFormat("h:mm")
+}

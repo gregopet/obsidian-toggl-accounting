@@ -11,9 +11,7 @@
 <script lang="ts" setup>
 import Modal from "../Modal.vue";
 import {ref, onMounted} from "vue";
-import {useTogglStore} from "../../stores/Toggl";
 import ProjectSelector from "../ProjectSelector.vue";
-import {DetailedReport, Project, Tag as TagAPI} from "../../TogglAPI";
 import {useTimeEntriesStore} from "../../stores/TimeEntries";
 import {DateTime} from "luxon";
 import {useAsyncState, useDebounceFn} from "@vueuse/core";
@@ -21,6 +19,8 @@ import TagSelector from "../TagSelector.vue";
 import {useCurrentStore} from "../../stores/Current";
 import {useObsidanStore} from "../../stores/Obsidian";
 import voca from "voca";
+import {useClockifyStore} from "../../stores/Clockify";
+import {components} from "../../Clockify";
 
 const props = defineProps<{
 	onClose: () => any
@@ -28,7 +28,7 @@ const props = defineProps<{
 const modal = ref();
 const autofocus = ref();
 
-const togglStore = useTogglStore();
+const clockifyStore = useClockifyStore();
 const timeEntryStore = useTimeEntriesStore();
 
 onMounted(() => {
@@ -38,8 +38,8 @@ onMounted(() => {
 const defaultTags = useObsidanStore().settings?.defaultTags;
 const entryName = ref("");
 const setDebouncedEntryName = useDebounceFn(fn => entryName.value = fn);
-const project = ref<Project | undefined>(undefined);
-const tag = ref<TagAPI[]>([]);
+const project = ref<components["schemas"]["TagDtoV1"] | undefined>(undefined);
+const tag = ref<components["schemas"]["TagDtoV1"][]>([]);
 const timeEntries = useAsyncState(
 	timeEntryStore.getTimeEntries(
 		DateTime.now().minus({days: 10}),
@@ -47,13 +47,9 @@ const timeEntries = useAsyncState(
 	).then( entries => {
 		let tasks = entries.map(e => ({
 			description: e.description,
-			project_id: e.project_id,
-			tag_ids: e.tag_ids,
-			latestStart: e
-				.time_entries
-				.map(e => DateTime.fromISO(e.start).toMillis())
-				.sort((e1, e2) => e2 - e1)
-				.first()!
+			projectId: e.projectId,
+			tagIds: e.tagIds,
+			latestStart: DateTime.fromISO(e.timeInterval!.start!).toMillis()
 		}));
 		return uniques(tasks).sort((e1, e2) => e2.latestStart - e1.latestStart)
 	}), []
@@ -65,16 +61,16 @@ function uniques<T>(array: Array<T>): Array<T> {
 }
 
 /** Get project by its id */
-function getProject(projectId: number | null) {
-	if (projectId == null) return null;
-	return togglStore.project(projectId);
+function getProject(projectId: string | undefined) {
+	if (projectId == undefined) return null;
+	return clockifyStore.project(projectId);
 }
 
 /** Invoked when user clicks on a tag once */
 function singleTagClick(entry: any) {
 	setDebouncedEntryName(entry.description);
-	project.value = togglStore.projects.filter(p => p.id === entry.project_id).first() ?? undefined;
-	tag.value = entry.tag_ids!.map((tid: number) => togglStore.tag(tid));
+	project.value = clockifyStore.project(entry.projectId) ?? undefined;
+	tag.value = entry.tagIds!.map((tid: string) => clockifyStore.tag(tid));
 }
 
 /** Invoked when user double clicks on a tag - allows for quick task creation */
@@ -85,7 +81,7 @@ function doubleTagClick(entry: any) {
 /** Start the time entry */
 async function create() {
 	if (!voca.isBlank(entryName.value)) {
-		await useCurrentStore().startCurrent(entryName.value, tag.value.map(t => t.name), project.value?.id)
+		await useCurrentStore().startCurrent(entryName.value, tag.value.map(t => t.id!), project.value?.id)
 		modal.value.close();
 	}
 }
@@ -97,10 +93,10 @@ async function create() {
 function filteredPreviousEntries(filter: string): typeof timeEntries.state.value {
 	if (voca.isBlank(filter)) return timeEntries.state.value;
 	const lcaseFilters = filter.toLowerCase().split(" ").filter(f => !voca.isBlank(f));
-	const projects = togglStore.projects.filter(p => lcaseFilters.some(f => p.name.toLowerCase().contains(f))).map(p => p.id);
+	const projects = clockifyStore.projects.filter(p => lcaseFilters.some(f => p.name!.toLowerCase().contains(f))).map(p => p.id);
 	return timeEntries.state.value.filter(e =>
-		lcaseFilters.some(f => e.description.toLowerCase().contains(f)) ||
-		projects.length && e.project_id != null && projects.contains(e.project_id)
+		lcaseFilters.some(f => e.description!.toLowerCase().contains(f)) ||
+		projects.length && e.projectId != null && projects.contains(e.projectId)
 	)
 }
 
@@ -116,7 +112,7 @@ function filteredPreviousEntries(filter: string): typeof timeEntries.state.value
 				<ul>
 					<li v-for="entry in filteredPreviousEntries(entryName)" v-if="timeEntries.isReady" @click="singleTagClick(entry)" @dblclick="doubleTagClick(entry)">
 						<span v-text="entry.description"></span>
-						<span v-text="getProject(entry.project_id)?.name ?? '(none)'" :style="{ color: (getProject(entry.project_id)?.color ?? 'gray') }"></span>
+						<span v-text="getProject(entry.projectId)?.name ?? '(none)'" :style="{ color: (getProject(entry.projectId)?.color ?? 'gray') }"></span>
 					</li>
 				</ul>
 			</div>

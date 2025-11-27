@@ -28,24 +28,25 @@
 			<table>
 				<tbody>
 					<template v-for="(entry, idx) in timeEntries">
-						<tr v-if="idx === 0 || !onSameDay(entry, timeEntries[idx-1])">
+						<tr v-if="idx === 0 || !onSameDay(entry, timeEntries[idx-1] as SelectableTimeEntry)">
 							<td colspan="3" class="date-row">
-								{{ formatDay(entry.start) }}
+								{{ formatDay(entry.timeInterval!.start!) }}
 							</td>
 						</tr>
 						<tr :title="fromToTitle(entry)" @click.right="editor(entry)">
 							<td><input type="checkbox" v-model="entry.selected" :id="'time-entry-' + entry.id"></td>
 							<td style="text-align: right">
 								<label :for="'time-entry-' + entry.id" style="display: block">
-									{{secondsToString(entry.seconds)}}
+									<!-- FIXME {{secondsToString(entry.seconds)}} -->
+									{{durationToString(entry.timeInterval!.duration!)}}
 								</label>
 							</td>
 							<td style="padding-left: 1em">
 								{{ entry.description }}
 								<div>
-									<project v-if="entry.project_id" :project-id="entry.project_id"></project>
+									<project v-if="entry.projectId" :project-id="entry.projectId"></project>
 									<span class="floating-tags">
-										<tag v-for="tagId in entry.tag_ids" :tag-id="tagId"></tag>
+										<tag v-for="tagId in entry.tagIds" :tag-id="tagId"></tag>
 									</span>
 								</div>
 							</td>
@@ -54,7 +55,7 @@
 				</tbody>
 			</table>
 		</div>
-		<editor-dialog v-if="editedTimeEntry" @close="closeEditor()" v-model="editedTimeEntry" @deleted="deleted" />
+		<!-- FIXME editor-dialog v-if="editedTimeEntry" @close="closeEditor()" v-model="editedTimeEntry" @deleted="deleted" /-->
 	</div>
 </template>
 
@@ -62,7 +63,7 @@
 
 import Tag from "../Tag.vue";
 import Project from "../Project.vue";
-import {secondsToString as secToStr} from "../../display/duration";
+import {secondsToString as secToStr, durationToString as durToString} from "../../display/duration";
 import SelectableTimeEntry, {createSelectableTimeEntries} from "./SelectableTimeEntry";
 import {DateTime} from "luxon";
 import {shortTime, longDate} from "../../display/time";
@@ -71,11 +72,12 @@ import {DetailedReport, Project as ProjectAPI, Tag as TagAPI } from "../../Toggl
 import {computed, nextTick, onMounted, ref} from "vue";
 import {useTimeEntriesStore} from "../../stores/TimeEntries";
 import EditorDialog from "../entryEditor/EditorDialog.vue";
+import {components} from "../../Clockify";
 
 const emit = defineEmits(["close"])
 
 const timeEntriesStore = useTimeEntriesStore();
-const secondsToString = secToStr;
+const durationToString = durToString;
 const formatDay = longDate;
 const timeEntriesLoaded = ref(false);
 
@@ -86,8 +88,8 @@ onMounted(() => {
 const props = defineProps<{
 	dateFrom: DateTime,
 	dateTo: DateTime,
-	tags: TagAPI[],
-	project: ProjectAPI | undefined,
+	tags: components["schemas"]["TagDtoV1"][],
+	project: components["schemas"]["ProjectDtoV1"] | undefined,
 }>()
 
 /** The time entries that were pulled from Toggl API */
@@ -108,19 +110,19 @@ function selectAll() {
 
 /** Do the two time entries take place on the same day? */
 function onSameDay(a: SelectableTimeEntry, b: SelectableTimeEntry): boolean {
-	return DateTime.fromISO(a.start).toISODate() == DateTime.fromISO(b.start).toISODate()
+	return DateTime.fromISO(a.timeInterval!.start!).toISODate() == DateTime.fromISO(b.timeInterval!.start!).toISODate()
 }
 
 function fromToTitle(entry: SelectableTimeEntry): string {
-	return `${shortTime(entry.start)} - ${shortTime(entry.stop)}`;
+	return `${shortTime(entry.timeInterval!.start!)} - ${shortTime(entry.timeInterval!.end!)}`;
 }
 
 /** Use the store to get the time entries */
 async function getTimeEntries() {
-	const tagIds = props.tags.map( (t) => t.id);
+	const tagIds = props.tags.map( (t) => t.id!);
 	timeEntries.value = createSelectableTimeEntries(
 		await timeEntriesStore.getTimeEntries(props.dateFrom, props.dateTo, props.project?.id, tagIds) as DetailedReport[]
-	).sort( (a, b) => a.start.localeCompare(b.start)); // Data is probably pre-sorted already, but just in case!
+	).sort( (a, b) => a.timeInterval!.start!.localeCompare(b.timeInterval!.start!)); // Data is probably pre-sorted already, but just in case!
 }
 
 function editor(entry: SelectableTimeEntry) {
@@ -134,7 +136,7 @@ function closeEditor() {
 }
 
 /** An entry was deleted using the editor dialog */
-function deleted(entryId: number) {
+function deleted(entryId: string) {
 	var index = timeEntries.value.findIndex(entry => entry.id === entryId);
 	if (index >= 0) {
 		timeEntries.value.splice(index, 1);

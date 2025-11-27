@@ -1,0 +1,37 @@
+### Get my user
+GET https://api.clockify.me/api/v1/user
+Accept: application/json
+X-Api-Key: {{clockifyToken}}
+
+> {%
+    client.global.set("defaultWorkspace", response.body.defaultWorkspace)
+    client.global.set("userId", response.body.id)
+ %}
+
+
+
+### Get my user workspace
+GET https://api.clockify.me/api/v1/workspaces/{{defaultWorkspace}}
+Accept: application/json
+X-Api-Key: {{clockifyToken}}
+
+
+### Get time entries currently in progress
+GET https://api.clockify.me/api/v1/workspaces/{{defaultWorkspace}}/user/{{userId}}/time-entries?in-progress=true
+Accept: application/json
+X-Api-Key: {{clockifyToken}}
+
+### Get my time entries
+GET https://api.clockify.me/api/v1/workspaces/{{defaultWorkspace}}/user/{{userId}}/time-entries?start=2025-11-26T23:24:00Z
+Accept: application/json
+X-Api-Key: {{clockifyToken}}
+
+### Get all projects
+GET https://api.clockify.me/api/v1/workspaces/{{defaultWorkspace}}/projects?archived=false
+Accept: application/json
+X-Api-Key: {{clockifyToken}}
+
+### Get tags
+GET http://api.clockify.me/api/v1/workspaces/{{defaultWorkspace}}/tags?archived=false
+Accept: application/json
+X-Api-Key: {{clockifyToken}}

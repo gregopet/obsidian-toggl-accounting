@@ -15,16 +15,17 @@ import {DateTime} from "luxon";
 import {useInterval} from "@vueuse/core";
 import EditorDialog from "../entryEditor/EditorDialog.vue";
 import {useCurrentStore} from "../../stores/Current";
+import {TimeEntryWithRatesDtoV1, useClockifyStore} from "../../stores/Clockify";
 const formatTime = shortTime
-const togglStore = useTogglStore();
+const clockifyStore = useClockifyStore();
 
 const props = defineProps<{
-	timer: RunningTimeEntry
+	timer: TimeEntryWithRatesDtoV1
 }>()
 
-const project = computed(() => props.timer.project_id ? togglStore.project(props.timer.project_id) : undefined);
+const project = computed(() => props.timer.projectId ? clockifyStore.project(props.timer.projectId) : undefined);
 const duration = computed(() => {
-	let start = DateTime.fromISO(props.timer.start!);
+	let start = DateTime.fromISO(props.timer.timeInterval?.start!);
 	if (start > DateTime.now()) start = DateTime.now();
 	const diff = DateTime.now().diff(start);
 	diff.minus({milliseconds: counter.value % 1}); // make the value update together with the timer
@@ -46,7 +47,7 @@ function edit() {
 	editing.value = true;
 }
 
-function deleted(timeEntryId: number) {
+function deleted(timeEntryId: string) {
 	if (props.timer && props.timer.id === timeEntryId) {
 		useCurrentStore().refreshCurrent();
 	}
@@ -65,7 +66,7 @@ function deleted(timeEntryId: number) {
 			⌛ {{ duration }}
 		</div>
 		<div>
-			<tag :tag-id="tagId" v-for="tagId in props.timer.tag_ids" />
+			<tag :tag-id="tagId" v-for="tagId in props.timer.tagIds" />
 		</div>
 		<editor-dialog v-if="editing" @close="editing = false" v-model="props.timer" @deleted="deleted" />
 	</div>

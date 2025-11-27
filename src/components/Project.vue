@@ -7,11 +7,12 @@
 <script lang="ts" setup>
 import {useTogglStore} from "../stores/Toggl";
 import {computed} from "vue";
+import {useClockifyStore} from "../stores/Clockify";
 
 const props = defineProps<{
-	projectId: number;
+	projectId: string;
 }>()
-const project = computed(() => useTogglStore().project(props.projectId))
+const project = computed(() => useClockifyStore().project(props.projectId))
 </script>
 <template>
 	<span :style="{ color: project.color}">

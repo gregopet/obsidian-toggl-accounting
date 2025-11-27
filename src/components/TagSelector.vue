@@ -10,18 +10,20 @@ import VSelect from "vue-select";
 import "vue-select/dist/vue-select.css";
 import TagControl from "./Tag.vue";
 import {storeToRefs} from "pinia";
+import {useClockifyStore} from "../stores/Clockify";
+import {components} from "../Clockify";
 
-const model = defineModel<Tag[]>();
+const model = defineModel<components["schemas"]["TagDtoV1"][]>();
 const props = defineProps<{
 	/** If provided, default tags will be used on component creation when the model is empty */
 	defaultTags?: string[]
 }>();
-const { tags } = storeToRefs(useTogglStore())
+const { tags } = storeToRefs(useClockifyStore())
 
 onBeforeMount(() => {
 	// if the model was empty on initial startup, apply defaults
 	if (!model.value?.length && props.defaultTags?.length) {
-		const defaultTags = tags.value.filter(t => props.defaultTags!.contains(t.name));
+		const defaultTags = tags.value.filter(t => props.defaultTags!.contains(t.name!));
 		model.value = defaultTags;
 	}
 })

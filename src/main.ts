@@ -3,6 +3,7 @@ import ObsidianSettingsTab from "./SettingsTab";
 import AccountingView, {ACCOUNTING_VIEW_TYPE} from "./AccountingView";
 import {DEFAULT_SETTINGS, Settings} from "./Settings";
 import {useTogglStore} from "./stores/Toggl";
+import {useClockifyStore} from "./stores/Clockify";
 
 
 export default class AccountingPlugin extends Plugin {
@@ -110,9 +111,9 @@ export default class AccountingPlugin extends Plugin {
 
 	async saveSettings() {
 		await this.saveData(this.settings);
-		const togglstore = useTogglStore();
-		if (togglstore.didApiKeyChange(this.settings.apiKey)) {
-			useTogglStore().login(this.settings.apiKey);
+		const clockifyStore = useClockifyStore();
+		if (clockifyStore.didApiKeyChange(this.settings.apiKey)) {
+			clockifyStore.login(this.settings.apiKey);
 		}
 	}
 }

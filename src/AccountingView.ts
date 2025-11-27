@@ -7,8 +7,9 @@ import {useObsidanStore} from "./stores/Obsidian";
 import ObsidianSettingsTab from "./SettingsTab";
 import {useTogglStore} from "./stores/Toggl";
 import {useCurrentStore} from "./stores/Current";
+import {useClockifyStore} from "./stores/Clockify";
 
-export const ACCOUNTING_VIEW_TYPE = "toggl-accounting";
+export const ACCOUNTING_VIEW_TYPE = "clockify-accounting";
 
 /** Creates a side display where we can do our accounting */
 export default class AccountingView extends ItemView {
@@ -28,7 +29,7 @@ export default class AccountingView extends ItemView {
 		app.use(createPinia())
 		useObsidanStore().registerApp(this.app, this.plugin, this.plugin.settings)
 		app.mount(this.contentEl)
-		useTogglStore().login(this.plugin.settings.apiKey).then(() => {
+		useClockifyStore().login(this.plugin.settings.apiKey).then(() => {
 			useCurrentStore().refreshCurrent()
 			this.registerInterval(
 				window.setInterval(() => useCurrentStore().refreshCurrent(), 10000)
@@ -39,7 +40,7 @@ export default class AccountingView extends ItemView {
 	}
 
 	getDisplayText(): string {
-		return "Toggl Accounting";
+		return "Clockify Accounting";
 	}
 
 	getViewType(): string {

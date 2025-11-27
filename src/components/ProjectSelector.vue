@@ -8,9 +8,12 @@
 import {useTogglStore} from "../stores/Toggl";
 import {Project} from "../TogglAPI";
 import { defineModel } from "vue";
+import {useObsidanStore} from "../stores/Obsidian";
+import {useClockifyStore} from "../stores/Clockify";
+import {components} from "../Clockify";
 
-const togglStore = useTogglStore()
-const model = defineModel<Project | undefined>();
+const togglStore = useClockifyStore()
+const model = defineModel<components["schemas"]["ProjectDtoV1"] | undefined>();
 
 const props = defineProps<{
 	noSelectionText: string | null;
