@@ -1,22 +1,22 @@
 <script lang="ts" setup>
 
 	import {storeToRefs} from "pinia";
-	import {useCurrentStore} from "../../stores/Current";
+	import {useTimeEntriesStore} from "../../stores/TimeEntries";
 	import {shortDate, shortTime} from "../../display/time";
 	import Tag from "../Tag.vue";
 	import {computed, nextTick, ref} from "vue";
-    import {useClockifyStore} from "../../stores/Clockify";
-    import {RunningTimeEntry} from "../../ClockifyAPI";
+	import {TimeEntryWithRatesDtoV1, useClockifyStore} from "../../stores/Clockify";
+
 	import EditorDialog from "../entryEditor/EditorDialog.vue";
 
-	const { recentTasks } = storeToRefs(useCurrentStore())
+	const { recentTasks } = storeToRefs(useTimeEntriesStore())
 	const formatDate = shortDate;
 	const formatTime = shortTime;
 
 	/** The time entry we are editing */
-	const editedTimeEntry = ref<RunningTimeEntry | undefined>(undefined);
+	const editedTimeEntry = ref<TimeEntryWithRatesDtoV1 | undefined>(undefined);
 
-	function editor(entry: RunningTimeEntry) {
+	function editor(entry: TimeEntryWithRatesDtoV1) {
 		editedTimeEntry.value = entry;
 	}
 
@@ -34,7 +34,7 @@
 		}
 	}
 
-    function projectColor(task: RunningTimeEntry) {
+    function projectColor(task: TimeEntryWithRatesDtoV1) {
         if (!task.projectId) return "var(--color-base-05)";
         let proj = useClockifyStore().project(task.projectId);
 		if (proj) return proj.color;
@@ -55,12 +55,12 @@
 				</div>
 				<div class="twosides">
 					<span>
-                        {{ formatDate(task.start || '') }}
+                        {{ formatDate(task.timeInterval!.start || '') }}
 					</span>
 
 					<span>
-                        {{ formatTime(task.start || '') }} -
-                        <span v-if="task.end">{{ formatTime(task.end) }}</span>
+                        {{ formatTime(task.timeInterval!.start || '') }} -
+                        <span v-if="task.timeInterval!.end">{{ formatTime(task.timeInterval!.end) }}</span>
 						<span v-else>(running)</span>
 					</span>
 				</div>

@@ -5,8 +5,7 @@ import {createPinia} from "pinia";
 import AccountingPlugin from "./main";
 import {useObsidanStore} from "./stores/Obsidian";
 import ObsidianSettingsTab from "./SettingsTab";
-import {useTogglStore} from "./stores/Toggl";
-import {useCurrentStore} from "./stores/Current";
+import { useTimeEntriesStore } from "./stores/TimeEntries";
 import {useClockifyStore} from "./stores/Clockify";
 
 export const ACCOUNTING_VIEW_TYPE = "clockify-accounting";
@@ -30,9 +29,9 @@ export default class AccountingView extends ItemView {
 		useObsidanStore().registerApp(this.app, this.plugin, this.plugin.settings)
 		app.mount(this.contentEl)
 		useClockifyStore().login(this.plugin.settings.apiKey).then(() => {
-			useCurrentStore().refreshCurrent()
+			useTimeEntriesStore().refreshCurrent()
 			this.registerInterval(
-				window.setInterval(() => useCurrentStore().refreshCurrent(), 10000)
+				window.setInterval(() => useTimeEntriesStore().refreshCurrent(), 10000)
 			)
 		})
 

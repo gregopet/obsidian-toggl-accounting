@@ -1,5 +1,5 @@
 import {defineStore} from "pinia";
-import {ref} from "vue";
+import {nextTick, ref} from "vue";
 import {DateTime, Duration} from "luxon";
 import {useTogglStore} from "./Toggl";
 import {DetailedReport, DetailedReportQuery, RunningTimeEntry, Tag, UpdateTimeEntry} from "../TogglAPI";
@@ -11,6 +11,38 @@ export const useTimeEntriesStore = defineStore('time-entries', () => {
 	/** Tags for which we would like to get our time entries (or empty array to get regardless of tag) */
 	const tagIds = ref<number[]>([])
 
+	/** The currently active time tracking entries*/
+	const current = ref<TimeEntryWithRatesDtoV1[]>([])
+
+	/** Recent tasks */
+	const recentTasks = ref<TimeEntryWithRatesDtoV1[]>([])
+
+	/** Gets the current time entry or null if there are no time entries and update the state */
+	async function refreshCurrent()  {
+		const clockifyStore = useClockifyStore();
+		if (clockifyStore.loginState == "OK") {
+			const { data, error } = await clockifyStore.client.GET("/v1/workspaces/{workspaceId}/user/{userId}/time-entries", {
+				params: {
+					path: { workspaceId: clockifyStore.user!.defaultWorkspace!, userId: clockifyStore.user?.id! },
+				},
+				headers: { ...clockifyStore.authHeaders() }
+			})
+
+			if (error) throw error;
+
+			await nextTick(() => {
+				recentTasks.value = data
+				// any ongoing time entries?
+				current.value = data.filter(d => !d.timeInterval!.end);
+			})
+		} else {
+			await nextTick(() => {
+				recentTasks.value = []
+				current.value = [];
+			});
+		}
+	}
+
 	/** Fetches all time entries */
 	async function getTimeEntries(from: DateTime, to: DateTime, projectId?: string, tagIds?: string[]): Promise<TimeEntryWithRatesDtoV1[]> {
 		const clockifyStore = useClockifyStore()
@@ -21,8 +53,8 @@ export const useTimeEntriesStore = defineStore('time-entries', () => {
 					tags: tagIds,
 					project: projectId,
 					// FIXME: times seem to be off by 1 hour? .. even though we are sending UTC and they are sending UTC...
-					start: from.toUTC().toFormat("yyyy-MM-dd'T'hh:mm:ss'Z'"),
-					end: to.toUTC().toFormat("yyyy-MM-dd'T'hh:mm:ss'Z'"),
+					start: from.toUTC().toFormat("yyyy-MM-dd'T'HH:mm:ss'Z'"),
+					end: to.toUTC().toFormat("yyyy-MM-dd'T'HH:mm:ss'Z'"),
 				}
 			},
 			headers: { ...clockifyStore.authHeaders() }
@@ -126,5 +158,50 @@ export const useTimeEntriesStore = defineStore('time-entries', () => {
 		if (error) throw(error);
 	}
 
-	return { tagIds, getTimeEntries, removeTag, addTag, updateTask, deleteEntry }
+	/** Starts a new time entry */
+	async function startCurrent(description: string, tags: string[], projectId: string | undefined) {
+		const clockifyStore = useClockifyStore();
+		if (clockifyStore.loginState == "OK") {
+			const { data, error } = await clockifyStore.client.POST("/v1/workspaces/{workspaceId}/time-entries", {
+				params: {
+					path: { workspaceId: clockifyStore.user!.defaultWorkspace! },
+				},
+				headers: { ...clockifyStore.authHeaders() },
+				body: {
+					start: DateTime.now().toISO(),
+					tagIds: tags,
+					description,
+					projectId
+				}
+			})
+			if (data) {
+				await nextTick(() => {
+					current.value = [data as TimeEntryWithRatesDtoV1]; // it's really components["schemas"]["TimeEntryDtoImplV1"] but they are almost the same
+				});
+			} else {
+				throw error;
+			}
+		}
+	}
+
+	/** Stops the running time entry */
+	async function stopCurrent() {
+		if (current.value) {
+			const clockifyStore = useClockifyStore();
+			const {data, error} = await clockifyStore.client.PATCH("/v1/workspaces/{workspaceId}/user/{userId}/time-entries", {
+				params: {
+					path: { workspaceId: clockifyStore.user!.defaultWorkspace!, userId: clockifyStore.user?.id! }
+				},
+				headers: { ...clockifyStore.authHeaders() },
+				body: {
+					end: new Date().toISOString()
+				}
+			})
+			if (!error) {
+				current.value = []
+			}
+		}
+	}
+
+	return { tagIds, getTimeEntries, removeTag, addTag, updateTask, deleteEntry, startCurrent, stopCurrent, refreshCurrent, current, recentTasks }
 });

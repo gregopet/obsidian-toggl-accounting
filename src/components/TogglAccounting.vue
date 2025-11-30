@@ -12,6 +12,7 @@ import IntervalReport from "./intervalReport/Report.vue";
 import Status from "./status/Status.vue";
 import ReportCriteria from "./intervalReport/ReportCriteria.vue";
 import {useClockifyStore} from "../stores/Clockify";
+import RecentTasks from "./status/RecentTasks.vue";
 
 const clockifyStore = useClockifyStore();
 const limitToProject = ref<ProjectAPI | undefined>(undefined);
@@ -52,6 +53,8 @@ const isReportActive = ref(false)
 		</div>
 
 		<interval-report :date-from="dateFrom" :date-to="dateTo" :project="limitToProject" :tags="limitToTags" v-if="isReportActive" @close="isReportActive = false" />
+
+		<recent-tasks></recent-tasks>
 	</div>
 </template>
 

@@ -14,7 +14,7 @@ import Tag from "../Tag.vue";
 import {DateTime} from "luxon";
 import {useInterval} from "@vueuse/core";
 import EditorDialog from "../entryEditor/EditorDialog.vue";
-import {useCurrentStore} from "../../stores/Current";
+import {useTimeEntriesStore} from "../../stores/TimeEntries";
 import {TimeEntryWithRatesDtoV1, useClockifyStore} from "../../stores/Clockify";
 const formatTime = shortTime
 const clockifyStore = useClockifyStore();
@@ -49,7 +49,7 @@ function edit() {
 
 function deleted(timeEntryId: string) {
 	if (props.timer && props.timer.id === timeEntryId) {
-		useCurrentStore().refreshCurrent();
+		useTimeEntriesStore().refreshCurrent();
 	}
 }
 

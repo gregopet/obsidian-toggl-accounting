@@ -8,7 +8,7 @@
 	and further calls are blocked).
 -->
 <script lang="ts" setup>
-import {useCurrentStore} from "../../stores/Current";
+import {useTimeEntriesStore} from "../../stores/TimeEntries";
 import RunningTimer from "./RunningTimer.vue";
 import {computed, ref} from "vue";
 import StartNewDialog from "./StartNewDialog.vue";
@@ -16,14 +16,15 @@ import {mapState, storeToRefs} from "pinia";
 import {useTogglStore} from "../../stores/Toggl";
 import {useClockifyStore} from "../../stores/Clockify";
 
-const { current } = storeToRefs(useCurrentStore())
+const timeEntriesStore = useTimeEntriesStore();
+const { current } = storeToRefs(timeEntriesStore )
 const startNewIsOpen = ref(false);
 const timerIsRunning = computed(() => !!current.value.length)
 const isRequestInFlight = mapState(useTogglStore, ['requestInFlight']);
 
 /** Stop the running timer */
 function stop() {
-	useCurrentStore().stopCurrent();
+	timeEntriesStore.stopCurrent();
 }
 </script>
 

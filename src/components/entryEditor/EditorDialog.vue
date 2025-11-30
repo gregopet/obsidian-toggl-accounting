@@ -12,11 +12,9 @@ import Modal from "../Modal.vue";
 import {hasTemporal, RunningTimeEntry, TimeEntry} from "../../TogglAPI";
 import {computed, ref} from "vue";
 import ProjectSelector from "../ProjectSelector.vue";
-import {useTogglStore} from "../../stores/Toggl";
 import {DateTime, Duration} from "luxon";
 import {useTimeEntriesStore} from "../../stores/TimeEntries";
 import TagSelector from "../TagSelector.vue";
-import {useCurrentStore} from "../../stores/Current";
 import {TimeEntryWithRatesDtoV1, useClockifyStore} from "../../stores/Clockify";
 
 const props = defineProps<{
@@ -26,6 +24,7 @@ const props = defineProps<{
 const emit = defineEmits(['deleted']);
 
 const clockifyStore = useClockifyStore()
+const timeEntriesStore = useTimeEntriesStore()
 const originalEntry = defineModel<TimeEntryWithRatesDtoV1>();
 const description = ref(originalEntry.value?.description)
 const project = ref(originalEntry.value?.projectId ? clockifyStore.project(originalEntry.value.projectId) : undefined)
@@ -39,7 +38,7 @@ const modal = ref();
 async function save() {
 
 	const endTime = stopTime.value ?  Duration.fromISOTime(stopTime.value!) : null;
-	const updated = await useTimeEntriesStore().updateTask(originalEntry.value!.id!, originalEntry.value!.workspaceId!, {
+	const updated = await timeEntriesStore.updateTask(originalEntry.value!.id!, originalEntry.value!.workspaceId!, {
 		description: description.value,
 		projectId: project.value?.id,
 		start: DateTime.fromFormat(startDate.value, "yyyy-MM-dd" ).plus(Duration.fromISOTime(startTime.value!)).toISO(),
@@ -53,15 +52,14 @@ async function save() {
 	originalEntry.value!.timeInterval!.end = updated.timeInterval!.end
 	originalEntry.value!.tagIds = updated.tagIds
 
-	const current = useCurrentStore()
-	if (endTime && current.current.length && originalEntry.value!.id == current.current[0]!.id) {
-		current.current = []
+	if (endTime && timeEntriesStore.current.length && originalEntry.value!.id == timeEntriesStore.current[0]!.id) {
+		timeEntriesStore.current = []
 	}
 	modal.value.close();
 }
 
 async function cancel() {
-	await useTimeEntriesStore().deleteEntry(originalEntry.value!.id!);
+	await timeEntriesStore.deleteEntry(originalEntry.value!.id!);
 	emit("deleted", originalEntry.value?.id)
 	modal.value.close();
 }

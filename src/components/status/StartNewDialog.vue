@@ -16,7 +16,6 @@ import {useTimeEntriesStore} from "../../stores/TimeEntries";
 import {DateTime} from "luxon";
 import {useAsyncState, useDebounceFn} from "@vueuse/core";
 import TagSelector from "../TagSelector.vue";
-import {useCurrentStore} from "../../stores/Current";
 import {useObsidanStore} from "../../stores/Obsidian";
 import voca from "voca";
 import {useClockifyStore} from "../../stores/Clockify";
@@ -81,7 +80,7 @@ function doubleTagClick(entry: any) {
 /** Start the time entry */
 async function create() {
 	if (!voca.isBlank(entryName.value)) {
-		await useCurrentStore().startCurrent(entryName.value, tag.value.map(t => t.id!), project.value?.id)
+		await timeEntryStore.startCurrent(entryName.value, tag.value.map(t => t.id!), project.value?.id)
 		modal.value.close();
 	}
 }
