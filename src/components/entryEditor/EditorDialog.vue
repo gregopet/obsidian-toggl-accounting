@@ -13,7 +13,7 @@ import {hasTemporal, RunningTimeEntry, TimeEntry} from "../../TogglAPI";
 import {computed, ref} from "vue";
 import ProjectSelector from "../ProjectSelector.vue";
 import {useTogglStore} from "../../stores/Toggl";
-import {DateTime} from "luxon";
+import {DateTime, Duration} from "luxon";
 import {useTimeEntriesStore} from "../../stores/TimeEntries";
 import TagSelector from "../TagSelector.vue";
 import {useCurrentStore} from "../../stores/Current";
@@ -25,24 +25,25 @@ const props = defineProps<{
 
 const emit = defineEmits(['deleted']);
 
-const localDateTimeFormat = "yyyy-MM-dd'T'hh:mm";
-
 const clockifyStore = useClockifyStore()
 const originalEntry = defineModel<TimeEntryWithRatesDtoV1>();
 const description = ref(originalEntry.value?.description)
 const project = ref(originalEntry.value?.projectId ? clockifyStore.project(originalEntry.value.projectId) : undefined)
-const start = ref(DateTime.fromISO(originalEntry.value!.timeInterval!.start!).toLocal().toFormat('yyyy-MM-dd'))
-const stop = ref(originalEntry.value!.timeInterval?.end ? DateTime.fromISO(originalEntry.value!.timeInterval.end!).toLocal().toFormat('yyyy-MM-dd') : null)
+const startDate = ref(DateTime.fromISO(originalEntry.value!.timeInterval!.start!).toLocal().toFormat('yyyy-MM-dd'))
+const startTime = ref(DateTime.fromISO(originalEntry.value!.timeInterval!.start!).toLocal().toFormat('HH:mm'))
+const stopDate = ref(originalEntry.value!.timeInterval?.end ? DateTime.fromISO(originalEntry.value!.timeInterval.end!).toLocal().toFormat('yyyy-MM-dd') : DateTime.now().toFormat('yyyy-MM-dd'))
+const stopTime = ref(originalEntry.value!.timeInterval?.end ? DateTime.fromISO(originalEntry.value!.timeInterval.end!).toLocal().toFormat('HH:mm') : null)
 const tags = ref(clockifyStore.tags.filter(t => originalEntry.value?.tagIds?.contains(t.id!)))
 
 const modal = ref();
 async function save() {
 
+	const endTime = stopTime.value ?  Duration.fromISOTime(stopTime.value!) : null;
 	const updated = await useTimeEntriesStore().updateTask(originalEntry.value!.id!, originalEntry.value!.workspaceId!, {
 		description: description.value,
 		projectId: project.value?.id,
-		start: start.value,
-		end: stop.value ?? undefined,
+		start: DateTime.fromFormat(startDate.value, "yyyy-MM-dd" ).plus(Duration.fromISOTime(startTime.value!)).toISO(),
+		end: endTime ? DateTime.fromFormat(stopDate.value, "yyyy-MM-dd" ).plus(endTime).toISO() : undefined,
 		tagIds: tags.value.map(t => t.id!),
 		billable: originalEntry.value?.billable,
 	})
@@ -51,6 +52,11 @@ async function save() {
 	originalEntry.value!.timeInterval!.start = updated.timeInterval!.start
 	originalEntry.value!.timeInterval!.end = updated.timeInterval!.end
 	originalEntry.value!.tagIds = updated.tagIds
+
+	const current = useCurrentStore()
+	if (endTime && current.current.length && originalEntry.value!.id == current.current[0]!.id) {
+		current.current = []
+	}
 	modal.value.close();
 }
 
@@ -81,13 +87,19 @@ async function cancel() {
 			<label for="from">
 				Started at
 			</label>
-			<input type="datetime-local" v-model="start" id="from">
+			<div class="two-inputs">
+				<input type="date" v-model="startDate" id="from">
+				<input type="text" v-model="startTime" id="fromTime">
+			</div>
 		</div>
 		<div>
 			<label for="to">
 				Finished at
 			</label>
-			<input type="datetime-local" v-model="stop" id="to">
+			<div class="two-inputs">
+				<input type="date" v-model="stopDate" id="to">
+				<input type="text" v-model="stopTime" id="toTime">
+			</div>
 		</div>
 		<div class="buttons">
 			<button @click="cancel()" class="mod-destructive">Delete</button>
@@ -105,8 +117,17 @@ async function cancel() {
 	border-top: 1px solid var(--background-modifier-border);
 }
 
-.modal-content>div input, .modal-content>div select, .modal-content>div>div {
+.modal-content>div input, .modal-content>div select, .modal-content>div>div, .two-inputs {
 	width: 60%;
+}
+
+.two-inputs {
+	display: flex;
+}
+
+.two-inputs input[type='text'] {
+	margin-left: 1em;
+	width: 5em;
 }
 
 
