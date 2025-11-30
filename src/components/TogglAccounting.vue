@@ -45,7 +45,6 @@ const isReportActive = ref(false)
 		<div v-if="!isReportActive" class="report-builder">
 			<status />
 
-
 			<report-criteria v-model:dateFrom="dateFrom" v-model:dateTo="dateTo" v-model:project="limitToProject" v-model:tags="limitToTags" class="report-criteria" />
 			<button @click="isReportActive = true" class="report-button">Get entries</button>
 
@@ -54,7 +53,9 @@ const isReportActive = ref(false)
 
 		<interval-report :date-from="dateFrom" :date-to="dateTo" :project="limitToProject" :tags="limitToTags" v-if="isReportActive" @close="isReportActive = false" />
 
-		<recent-tasks></recent-tasks>
+		<div v-if="!isReportActive">
+			<recent-tasks></recent-tasks>
+		</div>
 	</div>
 </template>
 

@@ -27,8 +27,8 @@ export default class ObsidianSettingsTab extends PluginSettingTab {
 					await this.plugin.saveSettings();
 				}));
 		new Setting(containerEl)
-			.setName("Default tags")
-			.setDesc("Tags to decorate new tags with (comma separated)")
+			.setName("Accounting tags tags")
+			.setDesc("Tags to decorate new tags with by default (comma separated), also limits accounting interface to them")
 			.addText(text => text
 				.setPlaceholder("Your comma-separated tags")
 				.setValue(this.plugin.settings.defaultTags.join(", "))

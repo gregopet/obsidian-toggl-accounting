@@ -3,6 +3,9 @@
 	their tags by pressing a button (only buttons for tags actually present on the tasks will be offered) or assign
 	them additional tags found on previous time entries.
 
+	Only tags considered "accounting tags" (defined in the settings) are handled here, as long as there is at least one
+	tag defined in the settings (otherwise we still consider all).
+
 	Accepts following properties:
 	- entries: the time entries to display
 
@@ -22,6 +25,9 @@ import {DateTime, Duration} from "luxon";
 import {shortDateFormatOpts} from "../../display/time";
 import {components} from "../../Clockify";
 import {useClockifyStore} from "../../stores/Clockify";
+import {useObsidanStore} from "../../stores/Obsidian";
+
+const obsidianStore = useObsidanStore()
 
 const props = defineProps<{
 	entries: SelectableTimeEntry[]
@@ -49,9 +55,17 @@ const latestDay = computed(() => {
 	return latest?.toLocaleString(shortDateFormatOpts);
 })
 
-/** Counts how many entries there are for each tag. */
+function isAccountingTag(tag: components["schemas"]["TagDtoV1"]) {
+	if (obsidianStore.settings?.defaultTags.length == 0) {
+		// no filtering
+		return true;
+	}
+	return obsidianStore.settings?.defaultTags.contains(tag.name!);
+}
+
+/** Counts how many entries there are for each tag. Limits tags to those configured in the settings */
 const tagsWithCounts = computed<TagWithCounts[]>(() =>
-	clockifyStore.tags.map((tag) => {
+	clockifyStore.tags.filter(isAccountingTag).map((tag) => {
 		return {
 			tag: tag,
 			entriesWithTag: props.entries.filter( (entry) =>

@@ -52,7 +52,6 @@ export const useTimeEntriesStore = defineStore('time-entries', () => {
 				query: {
 					tags: tagIds,
 					project: projectId,
-					// FIXME: times seem to be off by 1 hour? .. even though we are sending UTC and they are sending UTC...
 					start: from.toUTC().toFormat("yyyy-MM-dd'T'HH:mm:ss'Z'"),
 					end: to.toUTC().toFormat("yyyy-MM-dd'T'HH:mm:ss'Z'"),
 				}

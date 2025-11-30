@@ -37,7 +37,6 @@
 							<td><input type="checkbox" v-model="entry.selected" :id="'time-entry-' + entry.id"></td>
 							<td style="text-align: right">
 								<label :for="'time-entry-' + entry.id" style="display: block">
-									<!-- FIXME {{secondsToString(entry.seconds)}} -->
 									{{durationToString(entry.timeInterval!.duration!)}}
 								</label>
 							</td>
@@ -55,7 +54,7 @@
 				</tbody>
 			</table>
 		</div>
-		<!-- FIXME editor-dialog v-if="editedTimeEntry" @close="closeEditor()" v-model="editedTimeEntry" @deleted="deleted" /-->
+		<editor-dialog v-if="editedTimeEntry" @close="closeEditor()" v-model="editedTimeEntry" @deleted="deleted" />
 	</div>
 </template>
 
@@ -68,11 +67,10 @@ import SelectableTimeEntry, {createSelectableTimeEntries} from "./SelectableTime
 import {DateTime} from "luxon";
 import {shortTime, longDate} from "../../display/time";
 import SummaryAndControls from "./SummaryAndControls.vue";
-import {DetailedReport, Project as ProjectAPI, Tag as TagAPI } from "../../TogglAPI";
 import {computed, nextTick, onMounted, ref} from "vue";
 import {useTimeEntriesStore} from "../../stores/TimeEntries";
-import EditorDialog from "../entryEditor/EditorDialog.vue";
 import {components} from "../../Clockify";
+import {TimeEntryWithRatesDtoV1} from "../../stores/Clockify";
 
 const emit = defineEmits(["close"])
 
@@ -92,7 +90,7 @@ const props = defineProps<{
 	project: components["schemas"]["ProjectDtoV1"] | undefined,
 }>()
 
-/** The time entries that were pulled from Toggl API */
+/** The time entries that were pulled from Clockify API */
 const timeEntries = ref<SelectableTimeEntry[]>([]);
 
 /** The time entry we are editing */
@@ -121,7 +119,7 @@ function fromToTitle(entry: SelectableTimeEntry): string {
 async function getTimeEntries() {
 	const tagIds = props.tags.map( (t) => t.id!);
 	timeEntries.value = createSelectableTimeEntries(
-		await timeEntriesStore.getTimeEntries(props.dateFrom, props.dateTo, props.project?.id, tagIds) as DetailedReport[]
+		await timeEntriesStore.getTimeEntries(props.dateFrom, props.dateTo, props.project?.id, tagIds) as TimeEntryWithRatesDtoV1[]
 	).sort( (a, b) => a.timeInterval!.start!.localeCompare(b.timeInterval!.start!)); // Data is probably pre-sorted already, but just in case!
 }
 
