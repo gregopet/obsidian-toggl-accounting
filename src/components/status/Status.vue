@@ -3,9 +3,6 @@
 	for the user to be able to click on as wide area as possible, the click logic <running-timer> for both controls is
 	triggered from here, and for this reason the control also renders the <start-new-dialog> child control (via which
 	one can choose to start tracking a new time entry).
-
-	It will also display a loader so users know when their request is still ongoing (as the Toggl API is sometimes slow
-	and further calls are blocked).
 -->
 <script lang="ts" setup>
 import {useTimeEntriesStore} from "../../stores/TimeEntries";
@@ -13,14 +10,13 @@ import RunningTimer from "./RunningTimer.vue";
 import {computed, ref} from "vue";
 import StartNewDialog from "./StartNewDialog.vue";
 import {mapState, storeToRefs} from "pinia";
-import {useTogglStore} from "../../stores/Toggl";
 import {useClockifyStore} from "../../stores/Clockify";
 
 const timeEntriesStore = useTimeEntriesStore();
 const { current } = storeToRefs(timeEntriesStore )
 const startNewIsOpen = ref(false);
 const timerIsRunning = computed(() => !!current.value.length)
-const isRequestInFlight = mapState(useTogglStore, ['requestInFlight']);
+const isRequestInFlight = mapState(useClockifyStore, ['requestInFlight']);
 
 /** Stop the running timer */
 function stop() {
@@ -32,7 +28,7 @@ function stop() {
 	<div class="loader" v-show="isRequestInFlight.requestInFlight()"></div>
 	<div class="entry-and-button">
 		<div class="entry">
-			<span v-if="!timerIsRunning">No timer is currently running</span>
+			<span v-if="!timerIsRunning">No timer is currently runningg</span>
 			<running-timer v-else v-for="timer in current" :timer="timer"></running-timer>
 		</div>
 		<div class="button" @click="current.length > 0 ? stop() : startNewIsOpen = true">

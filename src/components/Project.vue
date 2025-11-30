@@ -1,11 +1,10 @@
 <!--
-	A simple control that renders a project via its ID (the project is fetched automatically from the Toggl API). It
+	A simple control that renders a project via its ID (the project is fetched automatically from the Clockify API). It
 	accepts a single property:
 	- projectId: ID of the project to render
 -->
 
 <script lang="ts" setup>
-import {useTogglStore} from "../stores/Toggl";
 import {computed} from "vue";
 import {useClockifyStore} from "../stores/Clockify";
 

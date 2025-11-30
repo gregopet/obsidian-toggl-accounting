@@ -2,7 +2,6 @@ import {Plugin} from 'obsidian';
 import ObsidianSettingsTab from "./SettingsTab";
 import AccountingView, {ACCOUNTING_VIEW_TYPE} from "./AccountingView";
 import {DEFAULT_SETTINGS, Settings} from "./Settings";
-import {useTogglStore} from "./stores/Toggl";
 import {useClockifyStore} from "./stores/Clockify";
 
 
@@ -27,7 +26,7 @@ export default class AccountingPlugin extends Plugin {
 
 		// Add command to open the sidebar
 		this.addCommand({
-			id: "toggl-accounting-open-sidebar",
+			id: "toggl-clockify-open-sidebar",
 			name: "Open sidebar",
 			callback: () => {
 				const leaf = this.app.workspace.getLeavesOfType(ACCOUNTING_VIEW_TYPE)[0];

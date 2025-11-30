@@ -9,7 +9,6 @@
 -->
 <script lang="ts" setup>
 import Modal from "../Modal.vue";
-import {hasTemporal, RunningTimeEntry, TimeEntry} from "../../TogglAPI";
 import {computed, ref} from "vue";
 import ProjectSelector from "../ProjectSelector.vue";
 import {DateTime, Duration} from "luxon";

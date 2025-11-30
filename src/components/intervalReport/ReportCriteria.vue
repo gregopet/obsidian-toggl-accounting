@@ -10,7 +10,6 @@
 	import {defineModel} from 'vue';
 	import DateSelector from "../DateSelector.vue";
 	import {DateTime} from "luxon";
-	import { Project, Tag } from "../../TogglAPI";
 	import TagSelector from "../TagSelector.vue";
 	import ProjectSelector from "../ProjectSelector.vue";
 	import {components} from "../../Clockify";

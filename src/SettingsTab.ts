@@ -1,6 +1,5 @@
 import {App, PluginSettingTab, Setting} from "obsidian";
 import AccountingPlugin from "./main";
-import {useTogglStore} from "./stores/Toggl";
 
 export default class ObsidianSettingsTab extends PluginSettingTab {
 	plugin: AccountingPlugin;

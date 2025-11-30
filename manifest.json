@@ -1,9 +1,9 @@
 {
-	"id": "obsidian-toggl-accounting",
-	"name": "Obsidian Toggl Accounting",
+	"id": "obsidian-clockify-accounting",
+	"name": "Obsidian Clockify Accounting",
 	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
-	"description": "A plugin for accounting hours tracked with Toggl",
+	"description": "A plugin for accounting hours tracked with Clockify",
 	"author": "Obsidian",
 	"authorUrl": "https://obsidian.md",
 	"isDesktopOnly": true

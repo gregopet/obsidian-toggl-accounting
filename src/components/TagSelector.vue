@@ -3,8 +3,6 @@
 	an array of Tag objects as its v-model.
 -->
 <script lang="ts" setup>
-import {useTogglStore} from "../stores/Toggl";
-import {Tag} from "../TogglAPI";
 import {defineModel, onBeforeMount} from "vue";
 import VSelect from "vue-select";
 import "vue-select/dist/vue-select.css";

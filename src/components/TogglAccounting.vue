@@ -1,22 +1,21 @@
 <!--
-	The main plugin view that verifies that the user has a valid Toggl token configured. If login is OK, it then
+	The main plugin view that verifies that the user has a valid Clockify token configured. If login is OK, it then
 	displays the currently tracked time entry <status> and the <report-criteria> (plus activation button) via which
 	a time range of tasks can be fetched & handled.
 -->
 <script lang="ts" setup>
 import {ref} from "vue";
-import {useTogglStore} from "../stores/Toggl";
-import {Project as ProjectAPI, Tag as TagAPI} from "../TogglAPI";
 import {DateTime} from "luxon";
 import IntervalReport from "./intervalReport/Report.vue";
 import Status from "./status/Status.vue";
 import ReportCriteria from "./intervalReport/ReportCriteria.vue";
 import {useClockifyStore} from "../stores/Clockify";
 import RecentTasks from "./status/RecentTasks.vue";
+import {components} from "../Clockify";
 
 const clockifyStore = useClockifyStore();
-const limitToProject = ref<ProjectAPI | undefined>(undefined);
-const limitToTags = ref<TagAPI[]>([]);
+const limitToProject = ref<components["schemas"]["ProjectDtoV1"] | undefined>(undefined);
+const limitToTags = ref<components["schemas"]["TagDtoV1"][]>([]);
 const dateFrom = ref(DateTime.now().startOf("month"))
 const dateTo = ref(DateTime.now().endOf("month"))
 
@@ -60,7 +59,7 @@ const isReportActive = ref(false)
 </template>
 
 <style>
-.workspace-leaf-content[data-type='toggl-accounting'] .view-content {
+.workspace-leaf-content[data-type='clockify-accounting'] .view-content {
 	padding: 0; /** Is set to var(--size-4-4) by Obsidian */
 }
 .report-builder {

@@ -1,8 +1,6 @@
 import {defineStore} from "pinia";
 import {nextTick, ref} from "vue";
-import {DateTime, Duration} from "luxon";
-import {useTogglStore} from "./Toggl";
-import {DetailedReport, DetailedReportQuery, RunningTimeEntry, Tag, UpdateTimeEntry} from "../TogglAPI";
+import {DateTime} from "luxon";
 import {TimeEntryWithRatesDtoV1, useClockifyStore} from "./Clockify";
 import {components} from "../Clockify";
 
@@ -74,7 +72,6 @@ export const useTimeEntriesStore = defineStore('time-entries', () => {
 	/**
 	 * Bulk add or remove tags to multiple issues; updates the given issues in place!
 	 * Updates the first parameter in place
-	 * https://engineering.toggl.com/docs/api/time_entry/index.html#patch-bulk-editing-time-entries
 	 * */
 	async function addRemoveTag(timeEntries: TimeEntryWithRatesDtoV1[], tag: components["schemas"]["TagDtoV1"], op: "add" | "remove"): Promise<void> {
 		const entriesToSend = timeEntries

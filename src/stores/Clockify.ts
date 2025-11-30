@@ -35,6 +35,9 @@ export const useClockifyStore = defineStore('clockify', () => {
 	/** The default workspace's projects */
 	const projects = ref<components["schemas"]["ProjectDtoV1"][]>([]);
 
+	/** (not used / not working) Is there a network request to Clockify API currently in flight? */
+	const requestInFlight = ref(false);
+
 	/** Resolves a project by its ID */
 	function project(id: string): components["schemas"]["ProjectDtoV1"] {
 		return projects.value.find((pr) => pr.id === id)!!;
@@ -118,7 +121,7 @@ export const useClockifyStore = defineStore('clockify', () => {
 	}
 
 	return {
-		 login, didApiKeyChange, loginState, client, user, authHeaders, projects, tags, tag, project
+		 login, didApiKeyChange, loginState, client, user, authHeaders, projects, tags, tag, project, requestInFlight
 	}
 
 })

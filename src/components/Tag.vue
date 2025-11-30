@@ -1,6 +1,6 @@
 <!--
 	A control that displays a single tag (its name and tag icon). It accepts a single property:
-	- tagId (Toggl's ID of the tag, it will be fetched from server automatically)
+	- tagId (Clockify's ID of the tag, it will be fetched from server automatically)
 -->
 <script lang="ts" setup>
 import {computed} from "vue";

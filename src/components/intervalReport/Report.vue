@@ -67,6 +67,7 @@ import SelectableTimeEntry, {createSelectableTimeEntries} from "./SelectableTime
 import {DateTime} from "luxon";
 import {shortTime, longDate} from "../../display/time";
 import SummaryAndControls from "./SummaryAndControls.vue";
+import EditorDialog from "../entryEditor/EditorDialog.vue";
 import {computed, nextTick, onMounted, ref} from "vue";
 import {useTimeEntriesStore} from "../../stores/TimeEntries";
 import {components} from "../../Clockify";

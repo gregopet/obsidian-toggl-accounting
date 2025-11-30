@@ -9,7 +9,7 @@ import { resolve, join } from "path"
 export default defineConfig( ({mode}) => {
   let outDir = ".";
   if (process.env.OBSIDIAN_VAULT) {
-	  outDir = join(process.env.OBSIDIAN_VAULT, ".obsidian/plugins/obsidian-toggl-accounting");
+	  outDir = join(process.env.OBSIDIAN_VAULT, ".obsidian/plugins/obsidian-clockify-accounting");
   }
   return {
     plugins: [
@@ -27,7 +27,7 @@ export default defineConfig( ({mode}) => {
 		sourcemap: mode === 'development' ? 'inline' : false,
 		lib: {
 			entry: resolve(__dirname, "src/main.ts"),
-			name: "ObsidianTogglAccounting",
+			name: "ObsidianClockifyAccounting",
 			fileName: "main",
 			formats: ['cjs'],
 		},

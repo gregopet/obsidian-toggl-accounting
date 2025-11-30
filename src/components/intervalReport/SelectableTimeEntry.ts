@@ -1,4 +1,3 @@
-import {DetailedReport, TimeEntry} from "../../TogglAPI";
 import {TimeEntryWithRatesDtoV1} from "../../stores/Clockify";
 
 /** A time entry that can be selected or unselected */

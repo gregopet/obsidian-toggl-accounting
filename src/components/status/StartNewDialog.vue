@@ -1,6 +1,6 @@
 <!--
 	A modal dialog from which users can choose which time entry they would like to work on next. It presents several
-	previous tasks (fetched from Toggl's API) for the user to use as template (click) or use directly (double click).
+	previous tasks (fetched from Clockify's API) for the user to use as template (click) or use directly (double click).
 
 	The time entry being started must have a name, can belong to a project, and can be tagged with one or more tags.
 
@@ -69,7 +69,7 @@ function getProject(projectId: string | undefined) {
 function singleTagClick(entry: any) {
 	setDebouncedEntryName(entry.description);
 	project.value = clockifyStore.project(entry.projectId) ?? undefined;
-	tag.value = entry.tagIds!.map((tid: string) => clockifyStore.tag(tid));
+	tag.value = entry.tagIds?.map((tid: string) => clockifyStore.tag(tid));
 }
 
 /** Invoked when user double clicks on a tag - allows for quick task creation */

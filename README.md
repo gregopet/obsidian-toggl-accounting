@@ -1,4 +1,4 @@
-# Obsidian toggl accounting
+# Obsidian Clockify accounting
 
 To develop this plugin live, provide the location of your Obsidian vault using the `OBSIDIAN_VAULT` environemnt variable
 and use `npm run watch` to monitor for changes. Use the [hot reload](https://github.com/pjeby/hot-reload) plugin to

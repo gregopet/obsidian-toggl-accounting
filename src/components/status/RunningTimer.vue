@@ -6,17 +6,13 @@
 	- timer: the running timer to display
 -->
 <script lang="ts" setup>
-import {RunningTimeEntry} from "../../TogglAPI";
-import {shortTime} from "../../display/time";
-import {useTogglStore} from "../../stores/Toggl";
-import {computed, onMounted, ref} from "vue";
+import {computed, ref} from "vue";
 import Tag from "../Tag.vue";
 import {DateTime} from "luxon";
 import {useInterval} from "@vueuse/core";
 import EditorDialog from "../entryEditor/EditorDialog.vue";
 import {useTimeEntriesStore} from "../../stores/TimeEntries";
 import {TimeEntryWithRatesDtoV1, useClockifyStore} from "../../stores/Clockify";
-const formatTime = shortTime
 const clockifyStore = useClockifyStore();
 
 const props = defineProps<{
