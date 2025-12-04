@@ -29,6 +29,7 @@ const autofocus = ref();
 
 const clockifyStore = useClockifyStore();
 const timeEntryStore = useTimeEntriesStore();
+const obsidianStore = useObsidanStore();
 
 onMounted(() => {
 	autofocus.value.focus();
@@ -70,6 +71,15 @@ function singleTagClick(entry: any) {
 	setDebouncedEntryName(entry.description);
 	project.value = clockifyStore.project(entry.projectId) ?? undefined;
 	tag.value = entry.tagIds?.map((tid: string) => clockifyStore.tag(tid));
+
+	// the default tags are added back if they were removed by any chance!
+	obsidianStore.settings?.defaultTags?.forEach(defTag => {
+		if (!tag.value.find(t => t.name === defTag)) {
+			const defaultTag = clockifyStore.tags.find(t => t.name === defTag);
+			if (defaultTag) tag.value.push(defaultTag);
+		}
+	})
+
 }
 
 /** Invoked when user double clicks on a tag - allows for quick task creation */
