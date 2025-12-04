@@ -25,12 +25,12 @@
 	<div class="control">
 		<div>
 			<h3>Reports</h3>
-			<div>
+			<div class="first-row">
 				<date-selector v-model:dateFrom="dateFrom" v-model:dateTo="dateTo"></date-selector>
-			</div>
-			<div>
+				&nbsp;
 				<project-selector v-model="project" no-selection-text="All projects" />
 			</div>
+
 			<div>
 				<tag-selector v-model="tags" />
 			</div>
@@ -43,4 +43,10 @@
 		width: 100%;
 		margin-bottom: 0.5em;
 	}
+	.first-row {
+		display: flex;
+		justify-content: stretch;
+	}
+
+	.first-row>* { flex-grow: 1 }
 </style>

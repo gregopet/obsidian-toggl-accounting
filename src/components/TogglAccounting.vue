@@ -47,7 +47,7 @@ const isReportActive = ref(false)
 			<report-criteria v-model:dateFrom="dateFrom" v-model:dateTo="dateTo" v-model:project="limitToProject" v-model:tags="limitToTags" class="report-criteria" />
 			<button @click="isReportActive = true" class="report-button">Get entries</button>
 
-			<a class="clockify-link" href="https://app.clockify.me">Open Clockify</a>
+			<a class="clockify-link" href="https://app.clockify.me">Clockify >></a>
 		</div>
 
 		<interval-report :date-from="dateFrom" :date-to="dateTo" :project="limitToProject" :tags="limitToTags" v-if="isReportActive" @close="isReportActive = false" />
@@ -65,9 +65,15 @@ const isReportActive = ref(false)
 .report-builder {
 	padding: 0 var(--size-4-4); /** We've overriden this in Obsidian */
 }
+.report-builder button.report-button {
+	margin-top: 0.9em;
+	margin-bottom: 2em;
+	width: 100%;
+	color: var(--color-orange);
+}
+
 .clockify-link {
 	padding-top: 1em;
-	text-align: center;
 	display: block;
 	width: 100%;
 	text-decoration: none;
