@@ -28,7 +28,7 @@ function stop() {
 	<div class="loader" v-show="isRequestInFlight.requestInFlight()"></div>
 	<div class="entry-and-button">
 		<div class="entry">
-			<span v-if="!timerIsRunning">No timer is currently runningg</span>
+			<span v-if="!timerIsRunning">No timer is currently running</span>
 			<running-timer v-else v-for="timer in current" :timer="timer"></running-timer>
 		</div>
 		<div class="button" @click="current.length > 0 ? stop() : startNewIsOpen = true">
