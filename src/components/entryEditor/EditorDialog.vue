@@ -62,6 +62,16 @@ async function cancel() {
 	emit("deleted", originalEntry.value?.id)
 	modal.value.close();
 }
+
+function scroll(ev: WheelEvent, field: "startTime" | "stopTime") {
+	let delta = Duration.fromMillis(1000*60);
+	if (ev.deltaY > 0) delta = delta.negate();
+	if (field == "startTime" && startTime.value) {
+		startTime.value = Duration.fromISOTime(startTime.value!).plus(delta).toFormat("hh:mm")
+	} else if (field == "stopTime" && stopTime.value) {
+		stopTime.value = Duration.fromISOTime(stopTime.value!).plus(delta).toFormat("hh:mm")
+	}
+}
 </script>
 
 <template>
@@ -86,7 +96,7 @@ async function cancel() {
 			</label>
 			<div class="two-inputs">
 				<input type="date" v-model="startDate" id="from">
-				<input type="text" v-model="startTime" id="fromTime">
+				<input type="text" v-model="startTime" id="fromTime" @wheel="scroll($event, 'startTime')">
 			</div>
 		</div>
 		<div>
@@ -95,7 +105,7 @@ async function cancel() {
 			</label>
 			<div class="two-inputs">
 				<input type="date" v-model="stopDate" id="to">
-				<input type="text" v-model="stopTime" id="toTime">
+				<input type="text" v-model="stopTime" id="toTime" @wheel="scroll($event, 'stopTime')">
 			</div>
 		</div>
 		<div class="buttons">

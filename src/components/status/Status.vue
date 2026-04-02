@@ -49,7 +49,11 @@ function stop() {
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
-		padding: var(--size-4-4) 0; /** We've overriden this in Obsidian */
+		padding: var(--size-4-4); /** We've overriden this in Obsidian */
+
+		border-bottom-color: var(--divider-color);
+		border-bottom-style: solid;
+		border-bottom-width: 1px;
 	}
 
 	.entry-and-button .button {

@@ -44,8 +44,10 @@ const isReportActive = ref(false)
 		<div v-if="!isReportActive" class="report-builder">
 			<status />
 
-			<report-criteria v-model:dateFrom="dateFrom" v-model:dateTo="dateTo" v-model:project="limitToProject" v-model:tags="limitToTags" class="report-criteria" />
-			<button @click="isReportActive = true" class="report-button">Get entries</button>
+			<div class="report">
+				<report-criteria v-model:dateFrom="dateFrom" v-model:dateTo="dateTo" v-model:project="limitToProject" v-model:tags="limitToTags" class="report-criteria" />
+				<button @click="isReportActive = true" class="report-button">Get entries</button>
+			</div>
 
 			<a class="clockify-link" href="https://app.clockify.me">Clockify >></a>
 		</div>
@@ -62,14 +64,16 @@ const isReportActive = ref(false)
 .workspace-leaf-content[data-type='clockify-accounting'] .view-content {
 	padding: 0; /** Is set to var(--size-4-4) by Obsidian */
 }
-.report-builder {
-	padding: 0 var(--size-4-4); /** We've overriden this in Obsidian */
-}
+
 .report-builder button.report-button {
 	margin-top: 0.9em;
 	margin-bottom: 2em;
 	width: 100%;
 	color: var(--color-orange);
+}
+
+.report {
+	margin: 0 var(--size-4-4);
 }
 
 .clockify-link {
